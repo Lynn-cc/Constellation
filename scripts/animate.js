@@ -1,7 +1,6 @@
 //Game variables and methods
 $(function(){
     /*测试*/  var test = 0;
-
     var c = GLOBAL.ctx, 
         starsNumber = 20,
         backgroundImage = new Image(),
