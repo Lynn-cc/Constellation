@@ -88,9 +88,7 @@ var GLOBAL = {
     this.changeStatus = function(){
       if(this.stars){
         for(i = 0; i < this.stars.length; i++){
-          if(this.stars[i] && this.stars[i].nextStatus())
-            continue;
-          else
+          if(!(this.stars[i] && this.stars[i].nextStatus()))
             this.stars[i] = _create();
         }
       }
