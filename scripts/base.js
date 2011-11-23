@@ -23,69 +23,91 @@ var GLOBAL = {
 
   /*Star Class*/
   'Star' : function(){
+    var _status = 0;
+    var _angle = 0;
+    this.status = function(s){
+      if(s != undefined) 
+        _status = s; 
+      return _status;
+    };
+    this.angle = function(a){
+      if(a != undefined)
+        _angle = a; 
+      return _angle;
+    };
+    this.draw = function(){
+      GLOBAL.ctx.save();
+      GLOBAL.ctx.rotate(this.angle());
+      GLOBAL.ctx.drawImage(this.image,
+        this.x * Math.cos(this.angle()) + this.y * Math.sin(this.angle()),
+        this.y * Math.cos(this.angle()) - this.x * Math.sin(this.angle()));
+      GLOBAL.ctx.restore();
+    };
+    this.nextStatus = function(){
+      if(this.status() > 0){
+        this.status(this.status() - GLOBAL.interval/1000);
+        return true;
+      }
+      else
+        return false;
+    };
   },
 
   /*StarsArray Class*/
   'StarsArray' : function(n){
     //private methods
+    var i = 0;
     var _number = n;
     var _array = new Array();
     var _statusTime = 3;
     function _create(){
       var that = new GLOBAL.Star();
-      that.status = _statusTime;
-      that.angle = Math.random() * Math.PI * 2;
-      that.x = GLOBAL.random(GLOBAL.Star.prototype.image.width, GLOBAL.width - GLOBAL.Star.prototype.image.width);
-      that.y = GLOBAL.random(GLOBAL.Star.prototype.image.height, GLOBAL.height - GLOBAL.Star.prototype.image.width);
+      that.status(_statusTime);
+      that.angle(Math.random() * Math.PI * 2);
+      that.x = GLOBAL.random(GLOBAL.Star.prototype.image.width,
+        GLOBAL.width - GLOBAL.Star.prototype.image.width);
+      that.y = GLOBAL.random(GLOBAL.Star.prototype.image.height,
+        GLOBAL.height - GLOBAL.Star.prototype.image.width);
       return that;
     }
     //initilize
-    for(var i = 0; i<n; i++){
+    for(i = 0; i < n; i++){
       _array[i] = _create();
-      _array[i].status = GLOBAL.random(_statusTime); //首次随机时间长度
+      _array[i].status(GLOBAL.random(_statusTime)); //首次随机时间长度
     } 
 
     //pulbic methods
-    this.stars = (function(){
-        return _array;
-    })();
+    this.stars = _array;
     this.number = function(n){
-      if(n){
+      if(n != undefined){
         _number = n;
         _array.length = _number;
       }
       return _number;
     };
     this.changeStatus = function(){
-      for(var j = 0; j < this.stars.length; j++){
-        if(this.stars[j] && this.stars[j].status > 0){
-          this.stars[j].status -= GLOBAL['interval']/1000;
-        }else{
-          this.stars[j] = _create();
+      if(this.stars){
+        for(i = 0; i < this.stars.length; i++){
+          if(this.stars[i] && this.stars[i].nextStatus())
+            continue;
+          else
+            this.stars[i] = _create();
         }
       }
     };
     this.draw = function(){
       if(this.stars){
-        for(var i = 0; i<this.stars.length; i++){
-          GLOBAL.ctx.save();
-          GLOBAL.ctx.rotate(this.stars[i].angle);
-          GLOBAL.ctx.drawImage(this.stars[i].image,
-            this.stars[i].x*Math.cos(this.stars[i].angle) + this.stars[i].y*Math.sin(this.stars[i].angle),
-            this.stars[i].y*Math.cos(this.stars[i].angle) - this.stars[i].x*Math.sin(this.stars[i].angle));
-          GLOBAL.ctx.restore();
+        for(i = 0; i < this.stars.length; i++){
+          this.stars[i].draw();
         }
       }
     };
-
   }
 
 };
 
 GLOBAL.Star.prototype = new GLOBAL.GameObject();
 GLOBAL.Star.prototype.image = new Image();
-GLOBAL.Star.prototype.status = 0;
-GLOBAL.Star.prototype.angle = 0;
 GLOBAL.Star.prototype.image.src = 'images/star.png';
 GLOBAL.Star.prototype.image.width = 30;
 GLOBAL.Star.prototype.image.height = 30;
