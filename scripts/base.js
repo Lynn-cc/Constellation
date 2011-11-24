@@ -128,6 +128,32 @@ var GLOBAL = {
     this.del = function(){
         _path.pop();
     };
+  },
+
+  /*Cloud Class*/
+  'Cloud' : function(){
+    //待定
+  },
+
+  /*Timer Class*/
+  'Timer' : function(t){
+    var _duration = t * 1000 || 60 * 1000;
+    var _count = 0;
+    var _pauseStatus = false; 
+
+    this.now = function(){
+      if(!_pauseStatus){
+        _duration =  (_count - (new Date()).getTime()) < 0 ? 0 : (_count - (new Date()).getTime());
+      }
+      return Math.ceil(_duration/1000);
+    };
+    this.start = function(){
+      _count = _duration * 1000 + (new Date()).getTime();
+      _pauseStatus = false;
+    };
+    this.pause = function(){
+      _pauseStatus = true;
+    };
   }
 
 };
@@ -144,7 +170,6 @@ GLOBAL.Tail.prototype.image = new Image();
 GLOBAL.Tail.prototype.image.src = 'images/circle.png';
 GLOBAL.Tail.prototype.image.width = 30;
 GLOBAL.Tail.prototype.image.height = 30;
-
 
 GLOBAL.Position.equal = function(p1, p2){
   if(p1.x === p2.x && p1.y === p2.y)
