@@ -1,11 +1,12 @@
 //Game variables and methods
 $(function(){
-    /*测试1*/  var test = 0;
+    /*时间计数变量用于测试*/  var test = 0;
     var c = GLOBAL.ctx, 
         starsNumber = 20,
         backgroundImage = new Image(),
         starsObject = new GLOBAL.StarsArray(starsNumber),
-        tailObject = new GLOBAL.Tail();
+        tailObject = new GLOBAL.Tail(),
+        timeObject = new GLOBAL.Timer(10),
         backgroundImageSource = 'images/bg.jpg';
 
     function init(){
@@ -13,7 +14,14 @@ $(function(){
       GLOBAL.canvas.height = null || GLOBAL.height; 
       backgroundImage.src = backgroundImageSource;
       GLOBAL.canvas.addEventListener('mousemove', function(e){
-          tailObject.add(new GLOBAL.Position(e.clientX, e.clientY));
+          var p = new GLOBAL.Position(e.pageX, e.pageY);
+          tailObject.add(p);
+          starsHit(p);
+        }, false);
+
+      //测试时间对象暂停功能
+      GLOBAL.canvas.addEventListener('click', function(e){
+          timeObject.isPause() ?  timeObject.start() : timeObject.pause();
         }, false);
     }
 
@@ -22,33 +30,49 @@ $(function(){
       c.drawImage(backgroundImage, 0, 0);
       starsDraw();
       tailDraw();
+      timeDraw();
+      test++;
+    }
+
+    function starsHit(ep){
+      var s = starsObject.stars();
+      for(var i = 0; i < s.length; i++){ 
+        if(GLOBAL.Position.hit(ep, s[i].pos, s[i].width, s[i].height))
+          starsObject.remove(s[i]);
+      }
     }
 
     //GameObjectsDraw
     /*starsDraw*/
     function starsDraw(){
-      var that = starsObject;
-      that.changeStatus();
-      that.draw();
+      starsObject.changeStatus();
+      starsObject.draw();
 
-      /*测试1*/
-      if(test == 300){
-        that.number(100);
-      }else if(test == 400){
-        that.number(20);
+      if(test == 300){      //测试星星数量设置函数
+        starsObject.number(100);
+      }else if(test == 500){
+        starsObject.number(20);
       }
-      test++;
     }
 
+    /*tailDraw*/
     function tailDraw(){
       tailObject.draw();
 
-      if(test >= 100 && test % 3 === 0) //测试2
+      if(test >= 100 && test % 3 === 0) //测试尾巴自动缩回
         tailObject.del();
+    }
+
+    /*timeDraw*/
+    function timeDraw(){
+      c.fillStyle = 'red';
+      c.font = '30px Arial';
+      c.fillText(timeObject.now(), 10, 40);
     }
 
     (function main(){
         init();
+        timeObject.start(); //开始计时
         setInterval(gameloop, GLOBAL.interval);
     })();
 });
