@@ -37,8 +37,9 @@ $(function(){
     function starsHit(ep){
       var s = starsObject.stars();
       for(var i = 0; i < s.length; i++){ 
-        if(GLOBAL.Position.hit(ep, s[i].pos, s[i].width, s[i].height))
+        if(GLOBAL.Position.hit(ep, s[i].pos, s[i].width, s[i].height)){
           starsObject.remove(s[i]);
+        }
       }
     }
 
@@ -59,13 +60,13 @@ $(function(){
     function tailDraw(){
       tailObject.draw();
 
-      if(test >= 100 && test % 3 === 0) //测试尾巴自动缩回
+      if(test >= 100 && test % 2 === 0) //测试尾巴自动缩回
         tailObject.del();
     }
 
     /*timeDraw*/
     function timeDraw(){
-      c.fillStyle = 'red';
+      c.fillStyle = 'white';
       c.font = '30px Arial';
       c.fillText(timeObject.now(), 10, 40);
     }

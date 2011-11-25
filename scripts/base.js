@@ -2,8 +2,8 @@
 var GLOBAL = {
   //GLOBAL Variable and Methods
   'width' : 480,
-  'height' : 800,
-  'interval' : 5,
+  'height' : 320,
+  'interval' : 10,
   'canvas' : document.getElementById('main'),
   'ctx' : document.getElementById('main').getContext('2d'),
 
@@ -11,11 +11,6 @@ var GLOBAL = {
     if(arguments.length == 2)
       return Math.min(n, m) + Math.floor(Math.random() * Math.abs(m - n));
     return Math.floor(Math.random() * n); 
-  },
-  //待解决的问题
-  'each' : function(o, fn){
-    for(var i = 0; i < o.length; i++)
-      fn(o[i]);
   },
 
   //Classes
@@ -26,47 +21,48 @@ var GLOBAL = {
 
   /*Position Class*/
   'Position' : function(x, y){
-    var _x = x;
-    var _y = y;
+    var x_ = x,
+        y_ = y;
+
     this.x = function(x){
       if(x != undefined)
-        _x = x;
-      return _x;
+        x_ = x;
+      return x_;
     };
     this.y = function(y){
       if(y != undefined)
-        _y = y;
-      return _y;
+        y_ = y;
+      return y_;
     };
   },
 
   /*Star Class*/
   'Star' : function(){
-    var _status = 0,
-        _angle = 0;
+    var status_ = 0,
+        angle_ = 0;
 
     this.pos = new GLOBAL.Position(0, 0);
     this.status = function(s){
       if(s != undefined) 
-        _status = s * 1000; 
-      return _status;
+        status_ = s * 1000; 
+      return status_;
     };
     this.angle = function(a){
       if(a != undefined)
-        _angle = a; 
-      return _angle;
+        angle_ = a; 
+      return angle_;
     };
     this.draw = function(){
       GLOBAL.ctx.save();
-      GLOBAL.ctx.rotate(_angle);
+      GLOBAL.ctx.rotate(angle_);
       GLOBAL.ctx.drawImage(this.image,
-        this.pos.x() * Math.cos(_angle) + this.pos.y() * Math.sin(_angle),
-        this.pos.y() * Math.cos(_angle) - this.pos.x() * Math.sin(_angle));
+        this.pos.x() * Math.cos(angle_) + this.pos.y() * Math.sin(angle_),
+        this.pos.y() * Math.cos(angle_) - this.pos.x() * Math.sin(angle_));
       GLOBAL.ctx.restore();
     };
     this.nextStatus = function(){
-      if(_status > 0){
-        _status -= GLOBAL.interval;
+      if(status_ > 0){
+        status_ -= GLOBAL.interval;
         return true;
       }else
         return false;
@@ -75,85 +71,83 @@ var GLOBAL = {
 
   /*StarsArray Class*/
   'StarsArray' : function(n){
-    //private methods
-    var i = 0;
-    var _statusTime = 3;
-    var _array = new Array();
-    _array.length = n;
+    var i = 0,
+        statusTime_ = 3,
+        array_ = [],
+        create = null,
+        swap = [];
 
-    function _create(){
-      var that = new GLOBAL.Star();
-      that.status(_statusTime);
-      that.angle(Math.random() * Math.PI * 2);
-      that.pos.x(GLOBAL.random(GLOBAL.Star.prototype.image.width,
-          GLOBAL.width - GLOBAL.Star.prototype.image.width));
-      that.pos.y(GLOBAL.random(GLOBAL.Star.prototype.image.height,
-        GLOBAL.height - GLOBAL.Star.prototype.image.width));
-      return that;
+    function create_(){
+      create = new GLOBAL.Star();
+      create.status(statusTime_);
+      create.angle(Math.random() * Math.PI * 2);
+      create.pos.x(GLOBAL.random(GLOBAL.Star.prototype.width,
+          GLOBAL.width - GLOBAL.Star.prototype.width));
+      create.pos.y(GLOBAL.random(GLOBAL.Star.prototype.height,
+          GLOBAL.height - GLOBAL.Star.prototype.width));
+      return create;
     }
+
     //initilize
+    array_.length = n;
     for(i = 0; i < n; i++){
-      _array[i] = _create();
-      _array[i].status(GLOBAL.random(_statusTime)); //首次随机时间长度
+      array_[i] = create_();
+      array_[i].status(GLOBAL.random(statusTime_)); //首次随机时间长度
     } 
 
-    //pulbic methods
+    //pulbic
     this.stars = function(){
-      var swap = new Array();
-      for(i = 0; i < _array.length; i++){
-        if(_array[i])
-          swap[swap.length] = _array[i];
+      swap = [];
+      for(i = 0; i < array_.length; i++){
+        if(array_[i])
+          swap[swap.length] = array_[i];
       }
       return swap;
     };
     this.number = function(n){
       if(n != undefined){
-        _array.length = n;
+        array_.length = n;
       }
-      return _array.length;
+      return array_.length;
     };
     this.changeStatus = function(){
-      for(i = 0; i < _array.length; i++){
-        if(!(_array[i] && _array[i].nextStatus()))
-          _array[i] = _create();
+      for(i = 0; i < array_.length; i++){
+        if(!(array_[i] && array_[i].nextStatus()))
+          array_[i] = create_();
       }
-      // GLOBAL.each(_array, function(o){
-      //     if(!(o && o.nextStatus()))
-      //       o = _create(); 
-      //     alert(o.status());
-      // });
     };
     this.draw = function(){
-      for(i = 0; i < _array.length; i++){
-        if(_array[i])
-          _array[i].draw();
+      for(i = 0; i < array_.length; i++){
+        if(array_[i])
+          array_[i].draw();
       }
     };
     this.remove = function(o){
-      for(i = 0; i < _array.length; i++){
-        if(_array[i] === o)
-          _array[i] = null;
+      for(i = 0; i < array_.length; i++){
+        if(array_[i] === o)
+          array_[i] = null;
       }
     };
   },
 
   /*Tail Class*/
   'Tail' : function(){
-    var i = 0;
-    var _path = new Array();
-    var _maxlength = 50;
+    var i = 0,
+        path_ = [],
+        maxlength_ = 50;
+
     this.add = function(p){
-      _path.unshift(p);
-      if(_path.length > _maxlength)
-        _path.length = _maxlength;
+      path_.unshift(p);
+      if(path_.length > maxlength_)
+        path_.length = maxlength_;
     };
     this.draw = function(){
-      for(i = 0; i < _path.length; i++){
-        GLOBAL.ctx.drawImage(this.image, _path[i].x(), _path[i].y());
+      for(i = 0; i < path_.length; i++){
+        GLOBAL.ctx.drawImage(this.image, path_[i].x(), path_[i].y());
       }
     };
     this.del = function(){
-      _path.pop();
+      path_.pop();
     };
   },
 
@@ -164,25 +158,24 @@ var GLOBAL = {
 
   /*Timer Class*/
   'Timer' : function(t){
-    var _duration = t * 1000 || 60 * 1000;
-    var _count = 0;
-    var _pauseStatus = false; 
+    var duration_ = t * 1000 || 60 * 1000,
+        count_ = 0,
+        pauseStatus_ = false; 
 
     this.now = function(){
-      if(!_pauseStatus){
-        _duration =  (_count - (new Date()).getTime()) < 0 ? 0 : (_count - (new Date()).getTime());
-      }
-      return (Math.ceil(_duration/1000)).toString();
+      if(!pauseStatus_)
+        duration_ =  (count_ - (new Date()).getTime()) < 0 ? 0 : (count_ - (new Date()).getTime());
+      return (Math.ceil(duration_/1000)).toString();
     };
     this.start = function(){
-      _count = _duration + (new Date()).getTime();
-      _pauseStatus = false;
+      count_ = duration_ + (new Date()).getTime();
+      pauseStatus_ = false;
     };
     this.pause = function(){
-      _pauseStatus = true;
+      pauseStatus_ = true;
     };
     this.isPause = function(){
-      return _pauseStatus;
+      return pauseStatus_;
     };
   }
 
@@ -192,16 +185,18 @@ var GLOBAL = {
 GLOBAL.Star.prototype = new GLOBAL.GameObject();
 GLOBAL.Star.prototype.image = new Image();
 GLOBAL.Star.prototype.image.src = 'images/star.png';
-GLOBAL.Star.prototype.image.width = GLOBAL.Star.prototype.width;
-GLOBAL.Star.prototype.image.height = GLOBAL.Star.prototype.height;
 GLOBAL.Star.prototype.width = 30;
 GLOBAL.Star.prototype.height = 30;
+GLOBAL.Star.prototype.image.width = GLOBAL.Star.prototype.width;
+GLOBAL.Star.prototype.image.height = GLOBAL.Star.prototype.height;
 
 GLOBAL.Tail.prototype = new GLOBAL.GameObject();
 GLOBAL.Tail.prototype.image = new Image();
 GLOBAL.Tail.prototype.image.src = 'images/circle.png';
-GLOBAL.Tail.prototype.image.width = 30;
-GLOBAL.Tail.prototype.image.height = 30;
+GLOBAL.Tail.prototype.width = 30;
+GLOBAL.Tail.prototype.height = 30;
+GLOBAL.Tail.prototype.image.width = GLOBAL.Tail.prototype.width;
+GLOBAL.Tail.prototype.image.height = GLOBAL.Tail.prototype.height;
 
 GLOBAL.Position.equal = function(p1, p2){
   if(p1.x() === p2.x() && p1.y() === p2.y())
