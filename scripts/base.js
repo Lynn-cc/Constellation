@@ -103,7 +103,7 @@ var GLOBAL = {
         swap = [];
 
     function create_(){
-      create = new GLOBAL.Star(GLOBAL.random(1, 3));
+      create = new GLOBAL.Star(GLOBAL.random(1, 4));
       create.status(statusTime_);
       create.angle(Math.random() * Math.PI * 2);
       create.pos.x(GLOBAL.random(create.width,
