@@ -37,10 +37,32 @@ var GLOBAL = {
   },
 
   /*Star Class*/
-  'Star' : function(){
+  'Star' : function(size){
     var status_ = 0,
-        angle_ = 0;
+        angle_ = 0,
+        size_ = size || 1,
+        width_ = 10,
+        height_ = 10;
 
+    //initilize
+    switch(size_){
+     case '1':
+      width_ = 10;
+      height_ = 10;
+      break;
+     case '2':
+      width_ = 20;
+      height_ = 20;
+      break;
+     case '3':
+      width_ = 30;
+      height_ = 30;
+      break;
+     default:
+      break;
+    }
+
+    //public
     this.pos = new GLOBAL.Position(0, 0);
     this.status = function(s){
       if(s != undefined) 
@@ -52,10 +74,13 @@ var GLOBAL = {
         angle_ = a; 
       return angle_;
     };
+    this.size = size_; 
+    this.width = width_;
+    this.height = height_;
     this.draw = function(){
       GLOBAL.ctx.save();
       GLOBAL.ctx.rotate(angle_);
-      GLOBAL.ctx.drawImage(this.image,
+      GLOBAL.ctx.drawImage(this['image' + size_],
         this.pos.x() * Math.cos(angle_) + this.pos.y() * Math.sin(angle_),
         this.pos.y() * Math.cos(angle_) - this.pos.x() * Math.sin(angle_));
       GLOBAL.ctx.restore();
@@ -78,13 +103,13 @@ var GLOBAL = {
         swap = [];
 
     function create_(){
-      create = new GLOBAL.Star();
+      create = new GLOBAL.Star(GLOBAL.random(1, 3));
       create.status(statusTime_);
       create.angle(Math.random() * Math.PI * 2);
-      create.pos.x(GLOBAL.random(GLOBAL.Star.prototype.width,
-          GLOBAL.width - GLOBAL.Star.prototype.width));
-      create.pos.y(GLOBAL.random(GLOBAL.Star.prototype.height,
-          GLOBAL.height - GLOBAL.Star.prototype.width));
+      create.pos.x(GLOBAL.random(create.width,
+          GLOBAL.width - create.width));
+      create.pos.y(GLOBAL.random(create.height,
+          GLOBAL.height - create.height));
       return create;
     }
 
@@ -156,6 +181,11 @@ var GLOBAL = {
     //待定
   },
 
+  /*Obstacle Class*/
+  'Obstacle' : function(){
+    //待定
+  },
+
   /*Timer Class*/
   'Timer' : function(t){
     var duration_ = t * 1000 || 60 * 1000,
@@ -183,12 +213,12 @@ var GLOBAL = {
 
 
 GLOBAL.Star.prototype = new GLOBAL.GameObject();
-GLOBAL.Star.prototype.image = new Image();
-GLOBAL.Star.prototype.image.src = 'images/star.png';
-GLOBAL.Star.prototype.width = 30;
-GLOBAL.Star.prototype.height = 30;
-GLOBAL.Star.prototype.image.width = GLOBAL.Star.prototype.width;
-GLOBAL.Star.prototype.image.height = GLOBAL.Star.prototype.height;
+GLOBAL.Star.prototype.image1 = new Image();
+GLOBAL.Star.prototype.image2 = new Image();
+GLOBAL.Star.prototype.image3 = new Image();
+GLOBAL.Star.prototype.image1.src = 'images/star1.png';
+GLOBAL.Star.prototype.image2.src = 'images/star2.png';
+GLOBAL.Star.prototype.image3.src = 'images/star3.png';
 
 GLOBAL.Tail.prototype = new GLOBAL.GameObject();
 GLOBAL.Tail.prototype.image = new Image();
