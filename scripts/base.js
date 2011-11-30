@@ -177,14 +177,19 @@ var GLOBAL = {
           array_[i].draw();
       }
     };
-    /** remove a Star
+    /** 
+    * remove a Star
     * @param {object.<Star>} o:the star to be removed
+    * @return {boolean} if remove the star
     */
     this.remove = function(o){
       for(i = 0; i < array_.length; i++){
-        if(array_[i] === o)
+        if(array_[i] === o){
           array_[i] = null;
+          return true;
+        }
       }
+      return false;
     };
   },
 
@@ -244,7 +249,7 @@ var GLOBAL = {
     this.now = function(){
       if(!pauseStatus_)
         duration_ =  (count_ - (new Date()).getTime()) < 0 ? 0 : (count_ - (new Date()).getTime());
-      return (Math.ceil(duration_/1000)).toString();
+      return Math.ceil(duration_/1000);
     };
     /** start the timer */
     this.start = function(){
