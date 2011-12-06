@@ -1,11 +1,10 @@
 //Game variables and methods
 $(function(){
-    var test = 0; /*时间计数变量用于测试*/ 
     var c = GLOBAL.ctx, 
         starsNumber = 20,
         backgroundImage = new Image(),
         starsObject = new GLOBAL.StarsArray(starsNumber),
-        tailObject = new GLOBAL.Tail(),
+        //tailObject = new GLOBAL.Tail(),
         timeObject = new GLOBAL.Timer(10),
         backgroundImageSource = 'images/bg.jpg',
         gameInterval = null,
@@ -26,14 +25,8 @@ $(function(){
     */
     /** starsDraw */
     function starsDraw(){
-      starsObject.changeStatus();
+      starsObject.lifeDecrease();
       starsObject.draw();
-
-      if(test == 300){      //测试星星数量设置函数
-        starsObject.number(100);
-      }else if(test == 500){
-        starsObject.number(20);
-      }
     }
 
     /** tailDraw */
@@ -68,7 +61,7 @@ $(function(){
     */
     function mousemoveHandler(e){
       var p = new GLOBAL.Position(e.pageX, e.pageY);
-      tailObject.add(p);
+      //tailObject.add(p);
       starsHit(p);
     }
 
@@ -77,7 +70,7 @@ $(function(){
       var s = starsObject.stars();
       for(var i = 0; i < s.length; i++){ 
         if(GLOBAL.Position.hit(ep, s[i].pos, s[i].width, s[i].height) &&
-          starsObject.remove(s[i])){
+          starsObject.changeStatus(s[i])){
           score++;
         }
       }
@@ -114,10 +107,9 @@ $(function(){
       c.clearRect(0, 0, GLOBAL.width, GLOBAL.height);
       c.drawImage(backgroundImage, 0, 0);
       starsDraw();
-      tailDraw();
+      //tailDraw();
       timeDraw();
       scoreDraw();
-      test++;
       if(isTimeout){
         stopGame();
         GLOBAL.canvas.removeEventListener('click', clickHandler, false);
