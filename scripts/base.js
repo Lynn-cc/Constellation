@@ -22,6 +22,7 @@ var GLOBAL = {
     return Math.min(n, m) + Math.floor(Math.random() * Math.abs(m - n));
   },
 
+  
   /** Classes */
 
   /**
@@ -60,7 +61,8 @@ var GLOBAL = {
         angle_ = angle || 0,
         status_ = true, //status: if the star's life should be decreased
         width_ = this.WIDTH * zoom_,
-        height_ = this.HEIGHT * zoom_;
+        height_ = this.HEIGHT * zoom_,
+        pos_ = new GLOBAL.Position(0, 0);
 
     /**
     * @public
@@ -71,16 +73,14 @@ var GLOBAL = {
     this.status = status_;
     this.width = width_;
     this.height = height_;
-    this.pos = new GLOBAL.Position(0, 0);
+    this.pos = pos_;
 
     /** draw the star */
     this.draw = function() {
       GLOBAL.ctx.save();
+      GLOBAL.ctx.translate(pos_.x(), pos_.y());
       GLOBAL.ctx.rotate(angle_);
-      GLOBAL.ctx.drawImage(this['image' + (status_ ? '1' : '2')],
-        this.pos.x() * Math.cos(angle_) + this.pos.y() * Math.sin(angle_),
-        this.pos.y() * Math.cos(angle_) - this.pos.x() * Math.sin(angle_),
-        width_, height_);
+      GLOBAL.ctx.drawImage(this['image' + (status_ ? '1' : '2')], -width_/2, -height_/2, width_, height_);
       GLOBAL.ctx.restore();
     };
     /** 
@@ -149,22 +149,21 @@ var GLOBAL = {
 
     /**
     * @public
-    * get the stars array
     */
-    this.stars = function() {
-      swap = [];
-      for(i = 0; i < array_.length; i++) {
-        if(array_[i])
-          swap[swap.length] = array_[i];
-      }
-      return swap;
-    };
     /** get or set the number of the stars array */
-    this.number = function(n) {
-      if(n != undefined) {
-        array_.length = n;
-      }
-      return array_.length;
+//    this.number = function(n) {
+//      if(n != undefined) {
+//        array_.length = n;
+//      }
+//      return array_.length;
+//    };
+
+    /** 
+    * get the position of some star
+    * @return {Position}
+    */
+    this.pos = function(i) {
+      return array_[i].pos;
     };
     /** all the stars' lives decrease */
     this.lifeDecrease = function() {
@@ -184,12 +183,21 @@ var GLOBAL = {
     * change the star's status 
     * @return {boolean} if the star's status has been changed
     */
-    this.changeStatus = function(o) {
-      for(i = 0; i < array_.length; i++) {
-        if(array_[i] === o)
-          return array_[i].changeStatus();
-      }
+    this.changeStatus = function(i) {
+      if(array_[i])
+        return array_[i].changeStatus();
       return false;
+    };
+    /** 
+    * if the p is hit some star
+    * @return {number} if p is hit some star, return a the index number; otherwise return -1
+    */
+    this.isHit = function(p){
+      for(i = 0; i < array_.length; i++) {
+        if(array_[i] && array_[i].status && GLOBAL.Position.hit(p, array_[i]))
+          return i;
+      }
+      return -1;
     };
     /** 
     * count the successful stars number
@@ -220,32 +228,106 @@ var GLOBAL = {
   },
 
   /**
-  * Tail Class
+  * Path Class
   */
-  'Tail': function() {
-    var i = 0,
-        path_ = [],
-        maxlength_ = 50;
+  'Path': function() {
 
-    /**
-    * @public
-    * add a new point of the tail 
-    */
-    this.add = function(p) {
-      path_.unshift(p);
-      if(path_.length > maxlength_)
-        path_.length = maxlength_;
+    var i = 0,
+        point_ = [];
+
+    this.add = function(p){
+      point_[point_.length] = p;
     };
-    /** draw the tail */
-    this.draw = function() {
-      for(i = 0; i < path_.length; i++) {
-        GLOBAL.ctx.drawImage(this.image, path_[i].x(), path_[i].y());
+
+    this.draw = function(p){//to do: p is the current mouse position, no in point array, but draw it at the last point
+      if(point_.length > 1){
+        for(i = 1; i < point_.length; i++){
+          GLOBAL.ctx.save();
+          GLOBAL.ctx.strokeStyle = 'red';
+          GLOBAL.ctx.lineWidth = 3;
+          GLOBAL.ctx.beginPath();
+          GLOBAL.ctx.moveTo(point_[i - 1].x(), point_[i - 1].y());
+          GLOBAL.ctx.lineTo(point_[i].x(), point_[i].y());
+          GLOBAL.ctx.stroke();
+          GLOBAL.ctx.restore();
+        }
       }
     };
-    /** delete the last tail point*/
-    this.del = function() {
-      path_.pop();
-    };
+
+    //    var i = 0,
+    //        point_ = [],
+    //        length_ = 0, //the total path length
+    //        tailLength_ = 40, //the tail part length
+    //        width_ = 5,
+    //        angle_ = Math.atan2(width_/2, tailLength_),
+    //        d_ab_ = 0,
+    //        d_half_ = 0,
+    //        outline_ = [],
+    //        p1 = null,
+    //        p2 = null;
+    //
+    //    /**
+    //    * outline the path
+    //    * variables' meaning: path[i-1]:a, path[i]:b, d_half:b to b1 or b to b2, b1,b2,b in a line and perpendicular to line ab.
+    //    */
+    //    function outlineCount_(){
+    //      outline_ = [];
+    //      outline_[0] = new GLOBAL.Position(point_[0].x(), point_[0].y());
+    //      outline_[1] = new GLOBAL.Position(point_[0].x(), point_[0].y());
+    //      for(i = 1; i < point_.length - 1; i++) {
+    //        d_ab_ = GLOBAL.Position.distance(point_[i - 1], point_[i]);
+    //        length_ += d_ab_;
+    //        if(length_ < tailLength_)
+    //          d_half_ = d_ab_ * Math.tan(angle_);
+    //        else
+    //          d_half_ = width_/2;
+    //
+    //        p1 = new GLOBAL.Position(point_[i].x() + d_half_ * Math.abs(point_[i].y() - point_[i - 1].y())/d_ab_,
+    //          point_[i].y() - d_half_ * Math.abs(point_[i].x() - point_[i - 1].x())/d_ab_);
+    //        p2 = new GLOBAL.Position(point_[i].x() - d_half_ * Math.abs(point_[i].y() - point_[i - 1].y())/d_ab_,
+    //          point_[i].y() + d_half_ * Math.abs(point_[i].x() - point_[i - 1].x())/d_ab_);
+    //        if(Math.sin((point_[i].x() - point_[i-1].x())/GLOBAL.Position.distance(point_[i], point_[i-1])) > 0)
+    //          outline_.splice(i, 0, p1, p2);
+    //        else 
+    //          outline_.splice(i, 0, p2, p1);
+    //      }
+    //      outline_[outline_.length/2] = new GLOBAL.Position(point_[point_.length - 1].x(), point_[point_.length - 1].y());
+    //    }
+    //    /**
+    //    * @public
+    //    * add a new point
+    //    */
+    //    this.add = function(p) {
+    //      //if(point_.length === 0 || GLOBAL.Position.distance(point_[point_.length - 1], p) >= 10)
+    //      if(point_.length > 50){
+    //        point_.shift();
+    //      }
+    //      point_[point_.length] = p;
+    //    };
+    //    /**
+    //    * draw the path 
+    //    */
+    //    this.draw = function() {
+    //      if(point_.length > 0){
+    //        outlineCount_();
+    //        GLOBAL.ctx.save();
+    //        GLOBAL.ctx.fillStyle = 'red';
+    //        GLOBAL.ctx.lineJoin = 'round';
+    //        GLOBAL.ctx.globalCompositeOperation = 'source-over';
+    //        GLOBAL.ctx.beginPath();
+    //        GLOBAL.ctx.moveTo(outline_[0].x(), outline_[0].y());
+    //        for(i = 0; i < outline_.length; i++){
+    //          GLOBAL.ctx.lineTo(outline_[i].x(), outline_[i].y());
+    //        }
+    //        GLOBAL.ctx.closePath();
+    //        GLOBAL.ctx.fill();
+    //        GLOBAL.ctx.restore();
+    //      }
+    //    };
+    //    //    /** delete the last tail point*/
+    //    //    this.del = function() {
+    //    //      point_.pop();
+    //    //    };
   },
 
   /*Cloud Class*/
@@ -300,7 +382,7 @@ var GLOBAL = {
 GLOBAL.Star.prototype.image1 = new Image();
 GLOBAL.Star.prototype.image1.src = 'images/star.png';
 GLOBAL.Star.prototype.image2 = new Image();
-GLOBAL.Star.prototype.image2.src = 'images/circle.png';
+GLOBAL.Star.prototype.image2.src = 'images/star0.png';
 
 /**
 * @const {number}
@@ -312,20 +394,20 @@ GLOBAL.Star.MAXZOOM = 1;
 GLOBAL.Star.prototype.WIDTH = 30;
 GLOBAL.Star.prototype.HEIGHT = 30;
 
-GLOBAL.Tail.prototype.image = new Image();
-GLOBAL.Tail.prototype.image.src = 'images/circle.png';
-GLOBAL.Tail.prototype.width = 30;
-GLOBAL.Tail.prototype.height = 30;
-
 GLOBAL.Position.equal = function(p1, p2) {
   if(p1.x() === p2.x() && p1.y() === p2.y())
     return true;
   else
     return false;
 };
-
+GLOBAL.Position.distance = function(p1, p2) {
+  return Math.sqrt(Math.pow(p1.x() - p2.x(), 2) + Math.pow(p1.y() - p2.y(), 2));
+};
 //to do: judge the object's picture's data to leave out transparent data
-GLOBAL.Position.hit = function(p1, p2, w, h) { //if the point at Position p1 hit the object with w width and h height at Position p2
+GLOBAL.Position.hit = function(p1, o) { //if the point at Position p1 hit the object with w width and h height at Position p2
+  var p2 = o.pos,
+      w = o.width,
+      h = o.height;
   if(p1.x() >= p2.x() && p1.x() <= p2.x() + w && p1.y() >= p2.y() && p1.y() <= p2.y() + h)
     return true;
   else

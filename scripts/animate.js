@@ -4,7 +4,7 @@ $(function(){
         starsNumber = 20,
         backgroundImage = new Image(),
         starsObject = new GLOBAL.StarsArray(starsNumber),
-        //tailObject = new GLOBAL.Tail(),
+        pathObject = new GLOBAL.Path(),
         timeObject = new GLOBAL.Timer(10),
         backgroundImageSource = 'images/bg.jpg',
         gameInterval = null,
@@ -29,12 +29,9 @@ $(function(){
       starsObject.draw();
     }
 
-    /** tailDraw */
-    function tailDraw(){
-      tailObject.draw();
-
-      if(test >= 100 && test % 2 === 0) //测试尾巴自动缩回
-        tailObject.del();
+    /** pathDraw */
+    function pathDraw(){
+      pathObject.draw();
     }
 
     /** timeDraw */
@@ -61,18 +58,15 @@ $(function(){
     */
     function mousemoveHandler(e){
       var p = new GLOBAL.Position(e.pageX, e.pageY);
-      //tailObject.add(p);
       starsHit(p);
     }
 
     /** stars hit handler */
     function starsHit(ep){
-      var s = starsObject.stars();
-      for(var i = 0; i < s.length; i++){ 
-        if(GLOBAL.Position.hit(ep, s[i].pos, s[i].width, s[i].height) &&
-          starsObject.changeStatus(s[i])){
-          score++;
-        }
+      var b = starsObject.isHit(ep);
+      if(b != -1 && starsObject.changeStatus(b)) {
+        pathObject.add(starsObject.pos(b));
+        score++;
       }
     }
 
@@ -107,7 +101,7 @@ $(function(){
       c.clearRect(0, 0, GLOBAL.width, GLOBAL.height);
       c.drawImage(backgroundImage, 0, 0);
       starsDraw();
-      //tailDraw();
+      pathDraw();
       timeDraw();
       scoreDraw();
       if(isTimeout){
