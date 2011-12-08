@@ -67,6 +67,8 @@ $(function(){
       if(b != -1 && starsObject.changeStatus(b)) {
         pathObject.add(starsObject.pos(b));
         score++;
+      } else {
+        pathObject.last(ep);
       }
     }
 
@@ -100,8 +102,8 @@ $(function(){
     function gameloop(){
       c.clearRect(0, 0, GLOBAL.width, GLOBAL.height);
       c.drawImage(backgroundImage, 0, 0);
-      starsDraw();
       pathDraw();
+      starsDraw();
       timeDraw();
       scoreDraw();
       if(isTimeout){
