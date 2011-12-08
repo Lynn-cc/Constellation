@@ -1,4 +1,4 @@
 *.swf
-images/origin
+origin
 .gitignore
-scripts/animate.js
+animate.js
