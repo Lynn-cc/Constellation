@@ -57,7 +57,7 @@ $(function(){
     * Handlers
     */
     function mousemoveHandler(e){
-      var p = new GLOBAL.Position(e.pageX, e.pageY);
+      var p = new GLOBAL.Position(e.offsetX, e.offsetY);
       starsHit(p);
     }
 
@@ -112,8 +112,8 @@ $(function(){
       }
     }
 
-    (function main(){
-        init();
-        startGame();
-    })();
+    function main(){
+      init();
+      startGame();
+    }
 });

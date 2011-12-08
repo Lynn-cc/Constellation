@@ -194,10 +194,10 @@ var GLOBAL = {
     * count the successful stars number
     * @return {number}
     */
-    this.successNumber = function() {
+    this.remainNumber = function() {
       j = 0;
       for (i = 0; i < array_.length; i++) {
-        if (array_[i] && !array.status) {
+        if (array_[i] && array.status) {
           j++;
         }
       }
