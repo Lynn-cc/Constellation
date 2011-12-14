@@ -1,12 +1,12 @@
 //Game variables and methods
-$(function(){
+function startGame(type){
     var c = GLOBAL.ctx, 
         starsNumber = 20,
         backgroundImage = new Image(),
         starsObject = new GLOBAL.StarsArray(starsNumber),
         pathObject = new GLOBAL.Path(),
         timeObject = new GLOBAL.Timer(10),
-        backgroundImageSource = 'images/bg.jpg',
+        backgroundImageSource = 'images/background.jpg',
         gameInterval = null,
         isTimeout = false,
         score = 0;
@@ -15,8 +15,6 @@ $(function(){
     * @initialize
     */
     function init(){
-      GLOBAL.canvas.width = null || GLOBAL.width; //获取手机分辨率后设置
-      GLOBAL.canvas.height = null || GLOBAL.height; 
       backgroundImage.src = backgroundImageSource;
     }
 
@@ -109,11 +107,12 @@ $(function(){
       if(isTimeout){
         stopGame();
         GLOBAL.canvas.removeEventListener('click', clickHandler, false);
+        MENU.show();
       }
     }
 
-    function main(){
-      init();
-      startGame();
-    }
-});
+    (function main(){
+        init();
+        startGame();
+    })();
+}
