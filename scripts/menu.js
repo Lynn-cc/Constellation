@@ -4,17 +4,10 @@ var MENU = {
         addEvent_ = function() { GLOBAL.canvas.addEventListener('click', eventFn, false); },
         removeEvent_ = function() { GLOBAL.canvas.removeEventListener('click', eventFn, false); },
     eventFn = function(e) {
-   //   var s = '';
-   //   for(var x in e){
-   //     s += x + ':' + e[x] + '\n';
-   //   }
-   //   alert(s);
       var name,
           page = currentPage_.event(new GLOBAL.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
- //     alert(page);
       if (page && MENU[page]) {
-        currentPage_ = new MENU[page];
-        currentPage_.show();
+        currentPage_ = new MENU[page]();
       } else if (page) {
         removeEvent_();
         startGame(page);  //外部游戏开始入口函数
@@ -27,7 +20,6 @@ var MENU = {
     (function() {
         addEvent_();
         currentPage_ = new MENU.home();
-        currentPage_.show();
     })();
 
   },
@@ -42,7 +34,7 @@ var MENU = {
         image_ = new Image(),
         w_ = o.width,
         h_ = o.height;
-
+        
     image_.src = o.src;
     image_.width = w_;
     image_.height = h_;
@@ -61,16 +53,20 @@ var MENU = {
     var objects_ = {
       background: MENU.option({ pos: {x: 0, y: 0}, src: 'images/background.jpg', width: 960, height: 640}),
       logo: MENU.option({ pos: {x: 210, y: 30}, src: 'images/logo.png', width: 553, height: 186}),
-      start: MENU.option({ pos: {x: 350, y: 430}, src: 'images/start.png', width: 270, height: 81}),
-      help: MENU.option({ pos: {x: 350, y: 250}, src: 'images/help.png', width: 270, height: 81})
-    };
+      start: MENU.option({ pos: {x: 350, y: 250}, src: 'images/start.png', width: 270, height: 81}),
+      help: MENU.option({ pos: {x: 350, y: 360}, src: 'images/help.png', width: 270, height: 81})
+    },
+    o = null, //历遍临时变量
+    count = 0; //图片加载计数器
 
-    this.show = function() {
+
+    function show_() {
       GLOBAL.ctx.clearRect(0, 0, GLOBAL.width, GLOBAL.height);
-      for (var o in objects_) {
+      for (o in objects_) {
         GLOBAL.ctx.drawImage(objects_[o].image, objects_[o].pos.x(), objects_[o].pos.y());
       }
-    };
+    }
+
     this.event = function(p) {
       if (objects_.start.contain(p)) {
         return 'start';
@@ -80,6 +76,17 @@ var MENU = {
         return false;
       }
     };
+
+    for (o in objects_) {
+      if (objects_[o].image.complete) {
+        show_();
+      } else {
+        objects_[o].image.onload = function() {
+          ++count;
+          if (count == 4) show_();
+        };
+      }
+    }
   },
 
   start: function() {
@@ -89,14 +96,16 @@ var MENU = {
       water : MENU.option({ pos: {x: 280, y: 245}, src: 'images/water.png', width: 385, height: 95}),
       earth : MENU.option({ pos: {x: 280, y: 355}, src: 'images/earth.png', width: 285, height: 95}),
       fire : MENU.option({ pos: {x: 280, y: 465}, src: 'images/fire.png', width: 385, height: 95})
-    };
+    },
+    o = null,
+    count = 0;
 
-    this.show = function() {
+    function show_() {
       GLOBAL.ctx.clearRect(0, 0, GLOBAL.width, GLOBAL.height);
-      for (var o in objects_) {
+      for (o in objects_) {
         GLOBAL.ctx.drawImage(objects_[o].image, objects_[o].pos.x(), objects_[o].pos.y());
       }
-    };
+    }
     this.event = function(p) {
       if (objects_.wind.contain(p)) {
         return 'wind';
@@ -110,80 +119,123 @@ var MENU = {
         return false;
       }
     };
+
+    for (o in objects_) {
+      if (objects_[o].image.complete) {
+        show_();
+      } else {
+        objects_[o].image.onload = function() {
+          ++count;
+          if (count == 5) show_();
+        };
+      }
+    }
   },
 
   help: function() {
     var pageNumber_ = 3, //总页数
-        n_ = 0,
-        img_ = [], //当前页数
-    pages_ = {
-      pos : new GLOBAL.Position(310, 235),
+        n = 0,
+        o = null,
+        count = 0,
+    pageOption_ = {
+      pos : {x: 310, y: 235},
       width : 375,
-      height : 180,
-      pic : img_ //所有页图片
+      height : 180
     },
+    pagePic_ = [],
 
     //方便动态增加到object
-    nextPage_ = MENU.option({ pos: {x: 660, y: 460}, src: 'images/nextPage', width: 84, height: 29}),
-    prePage_ = MENU.option({ pos: {x: 200, y: 470}, src: 'images/prePage', width: 82, height: 33}),
+    nextPage_ = MENU.option({ pos: {x: 660, y: 460}, src: 'images/nextPage.png', width: 84, height: 29}),
+    prePage_ = MENU.option({ pos: {x: 200, y: 470}, src: 'images/prePage.png', width: 82, height: 33}),
 
     objects_ = {
-      background : MENU.option({ pos: {x: 0, y: 0}, src: 'images/helpBackground.jpg', width: 960, height: 640}),
-      page : { pos: pages_.pos, image: pages_.pic[n_], width: pages_.width, height: pages_.height}
-      //      back : MENU[o]ption({ pos: {x: 0, y: 0}, src: '', width: 0, height: 0})
+      background: MENU.option({ pos: {x: 0, y: 0}, src: 'images/helpBackground.jpg', width: 960, height: 640}),
+      page: null,
+      prePage: prePage_,
+      nextPage: nextPage_,
+      back: MENU.option({ pos: {x: 830, y: 155}, src: 'images/helpBack.png', width:20, height:20})
     };
 
-    var next_ = function() {
+    function next_() {
       if (n < pageNumber_ - 1) {
         ++n;
-        if (n == pageNumber_ - 1) {
-          objects_.nextPage = null;
-        } else if (n == 2) {
-          objects_.prePage = prePage_;
-        }
+        changePage_(n);
       }
-    };
+    }
 
-    var pre_ = function() {
-      if (n > 1) {
-        --n;
-        if (n == 1) {
-          objects_.prePage = null;
-        } else if (n == pageNumber_ - 2) {
-          objects_.nextPage = nextPage_;
-        }
+    function pre_() {
+      if (n > 0) {
+        --n; 
+        changePage_(n);
       }
-    };
+    }
+
+    function changePage_(m){
+      if (n === 0) {
+        objects_.prePage = null;
+      } else if (n === 1) {
+        objects_.prePage = prePage_;
+      } else if (n == pageNumber_ - 2) {
+        objects_.nextPage = nextPage_;
+      } else if (n == pageNumber_ - 1) {
+        objects_.nextPage = null;
+      }
+      objects_.page = pagePic_[m];
+    }
 
 
     /**
     * @initialize
     */
     for (var i = 0; i < pageNumber_; i++) {
-      img_[i] = new Image();
-      img_[i].src = 'images/page' + i;
+      pagePic_[i] = MENU.option({
+          pos: pageOption_.pos, 
+          src: 'images/page' + i + '.png', 
+          width: pageOption_.width, 
+          height: pageOption_.height
+      });
     }
+    objects_.prePage = null;
+    objects_.page = pagePic_[0];
 
-    objects_.nextPage = nextPage_;
-
-    this.show = function() {
+    //public
+    function show_() {
       GLOBAL.ctx.clearRect(0, 0, GLOBAL.width, GLOBAL.height);
-      for (var o in objects_) {
-        if (o)
+      for (o in objects_) {
+        if (objects_[o])
           GLOBAL.ctx.drawImage(objects_[o].image, objects_[o].pos.x(), objects_[o].pos.y());
       }
-    };
+    }
 
     this.event = function(p) {
-      if (prePage_.contain(p)) {
+      if (objects_.prePage && objects_.prePage.contain(p)) {
         pre_();
+        show_();
         return false;
-      } else if (nextPage_.contain(p)) {
+      } else if (objects_.nextPage && objects_.nextPage.contain(p)) {
         next_();
+        show_();
         return false;
+      } else if (objects_.back.contain(p)) {
+        return 'home';
       } else {
         return false;
       }
     };
+
+    for (o in objects_) {
+      if (objects_[o]) {
+        if (objects_[o].image.complete) {
+          show_();
+        } else {
+          objects_[o].image.onload = function() {
+            ++count;
+            if (count == 4) show_();
+          };
+        }
+      }
+    }
+
+
   }
 };
