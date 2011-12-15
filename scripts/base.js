@@ -303,11 +303,7 @@ GLOBAL.Star.prototype.HEIGHT = 30;
 
 /** static method */
 GLOBAL.Position.equal = function(p1, p2) {
-  if (p1.x() === p2.x() && p1.y() === p2.y()) {
-  return true;
-  } else {
-  return false;
-  }
+  return p1.x() === p2.x() && p1.y() === p2.y();
 };
 
 GLOBAL.Position.distance = function(p1, p2) {
