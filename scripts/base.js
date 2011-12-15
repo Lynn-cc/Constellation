@@ -210,8 +210,8 @@ var GLOBAL = {
   */
   Path: function() {
   var i = 0,
-    point_ = [],
-    last_ = new GLOBAL.Position(0, 0);
+      point_ = [],
+      last_ = new GLOBAL.Position(0, 0);
 
   /** add a point */
   this.add = function(p) {
@@ -250,8 +250,8 @@ var GLOBAL = {
   */
   Timer: function(t) {
   var duration_ = t * 1000 || 60 * 1000,
-    count_ = 0,
-    pauselife_ = false; 
+      count_ = 0,
+      pauselife_ = false; 
 
   /**
   * get the remain seconds curently 
