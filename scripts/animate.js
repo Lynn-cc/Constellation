@@ -1,5 +1,6 @@
 //Game variables and methods
 function startGame(type){
+  var test = 0;
     var c = GLOBAL.ctx, 
         starsNumber = 20,
         backgroundImage = new Image(),
@@ -55,7 +56,7 @@ function startGame(type){
     * Handlers
     */
     function mousemoveHandler(e){
-      var p = new GLOBAL.Position(e.offsetX, e.offsetY);
+      var p = new GLOBAL.Position(e.offsetX || e.pageX, e.offsetY || e.pageY);
       starsHit(p);
     }
 
@@ -71,12 +72,11 @@ function startGame(type){
     }
 
     function clickHandler(e){
-      if(timeObject.isPause()){  
-        timeObject.start(); 
-        startGame();
-      }else{
+      if(!timeObject.isPause()){  
         timeObject.pause();
         stopGame();
+        var p = MENU.show('pause');
+        p.show(startGame);
       }
     }
 
@@ -104,10 +104,15 @@ function startGame(type){
       starsDraw();
       timeDraw();
       scoreDraw();
+      if(starsObject.remainNumber() === 0){
+        starsObject = new GLOBAL.StarsArray(starsNumber);
+        pathObject = new GLOBAL.Path();
+      }
       if(isTimeout){
         stopGame();
         GLOBAL.canvas.removeEventListener('click', clickHandler, false);
-        MENU.show();
+        var p = MENU.show('gameover');
+        p.show(score);
       }
     }
 
@@ -115,4 +120,4 @@ function startGame(type){
         init();
         startGame();
     })();
-}
+  }
