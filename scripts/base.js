@@ -318,7 +318,7 @@ myth.base.classes = (function() {
 //        暂时去掉最后跟踪鼠标的连线
 //        c.lineTo(last_.x(), last_.y());
 //        c.stroke();
-//        c.restore();
+        c.restore();
       }
     };
   }
