@@ -36,13 +36,13 @@ myth.base.classes = (function() {
   * private random method
   * @param {number} 
   * @param {number} 
-  * @param {boolean} if return a decimals(Retain a decimal)
+  * @param {number} how many decimal to remain
   * @return {number} a random number from min(n, m) to max(n, m), (or 0 to n), not include max(n, m);
   */ 
   function random(n, opt_m, opt_decimals) {  //to do: how to solute the [0, 1] range problem
     var m = opt_m || 0;
-    if (opt_decimals) {
-      return (Math.floor((Math.min(n, m) + Math.random() * Math.abs(m - n)) * 10)) / 10;
+    if (opt_decimals > 0) {
+      return (Math.floor((Math.min(n, m) + Math.random() * Math.abs(m - n)) * 10 * opt_decimals)) / (10 * opt_decimals);
     }
     return Math.min(n, m) + Math.floor(Math.random() * Math.abs(m - n));
   }
@@ -107,19 +107,29 @@ myth.base.classes = (function() {
   * @param {number} life_: life of the star . units: second
   * @param {number} angle_: angle of the star, from 0 to 2 * pi
   */
-  function Star(zoom, life, angle) {
-    var zoom_ = zoom || 1,
+  function Star(zoom, life, angle, type) {
+    var zoom_ = zoom || this.MINZOOM,
         life_ = life || this.DEFAULT_LIFE,
         angle_ = angle || 0,
         status_ = true, 
         width_ = this.WIDTH * zoom_,
         height_ = this.HEIGHT * zoom_,
-        pos_ = new Position(0, 0);
+        pos_ = new Position(0, 0),
+        type_ = 0,
+        image_ = new Image();
 
-    this.status = function(s) {
-      if(s != undefined) status_ = s;
-      return status_;
-    };
+    /**
+    * @initilize
+    */
+    if (type && type <= 12 && type >= 1) {
+      type_ = type;
+    } else {
+      type_ = 0;
+    }
+    image_.src = this.srcGroup[type_];
+
+    this.type = function() { return type_; };
+    this.status = function() { return status_; };
     this.width = function() { return width_; };
     this.height = function() { return height_; };
     this.pos = pos_;
@@ -129,7 +139,7 @@ myth.base.classes = (function() {
       c.save();
       c.translate(pos_.x(), pos_.y());
       c.rotate(angle_);
-      c.drawImage(this['image' + (status_ ? '1' : '2')], -width_ / 2, -height_ / 2, width_, height_);
+      c.drawImage(image_, -width_ / 2, -height_ / 2, width_, height_);
       c.restore();
     };
 
@@ -138,15 +148,13 @@ myth.base.classes = (function() {
     * @return {boolean} if the star is die, return false; otherwise return true
     */
     this.nextlife = function() {
-      if (!status_) {
+      if (life_ > 0) {
+        life_ -= interval / 1000;
+        if (life <= 0)
+          status_ = false;
         return true;
       } else {
-        if (life_ > 0) {
-          life_ -= interval / 1000;
-          return true;
-        } else {
-          return false;
-        }
+        return false;
       }
     };
 
@@ -155,11 +163,9 @@ myth.base.classes = (function() {
     * @return {boolean} if changed successfully
     */
     this.changeStatus = function() {
-      if (status_) {
-        status_ = false;
-        return true;
-      }
-      return false;
+      status_ = false;
+      type_ = 13;
+      image_.src = this.srcGroup[type_];
     };
   }
   /**
@@ -167,19 +173,25 @@ myth.base.classes = (function() {
   * @const {Number} DEFAULT_LIFE: the default life time.(units: second)
   * @const {Number} WIDTH/HEIGHT: the origin size of the picture
   */
-  Star.prototype.DEFAULTLIFE = 3;
-  Star.prototype.WIDTH = 30;
-  Star.prototype.HEIGHT = 30;
-  Star.prototype.image1 = new Image();
-  Star.prototype.image1.src = 'images/star.png';
-  Star.prototype.image2 = new Image();
-  Star.prototype.image2.src = 'images/star0.png';
+  Star.prototype.DEFAULT_LIFE = 3;
+  Star.prototype.WIDTH = 256;
+  Star.prototype.HEIGHT = 256;
+  /**
+  * Every stars type src
+  * 0 refers to the origin star
+  * 1-12 refers to the constellation star
+  * 13 refers to the win star
+  */
+  Star.prototype.srcGroup = [];
+  for (var i = 0; i < 14; ++i) {
+    Star.prototype.srcGroup[i] = 'images/constellation' + i + '.png';
+  }
+
   /**
   * @static {Number} MINZOOM/MAXZOOM: the zoom range
   */
-  Star.MINZOOM = 0.5;
-  Star.MAXZOOM = 2;
-  
+  Star.MINZOOM = 0.1;
+  Star.MAXZOOM = 0.3;
 
   /** 
   * StarsGroup Class 
@@ -199,10 +211,20 @@ myth.base.classes = (function() {
     * @return {object.<Star>}
     */
     function create_() {
+      var constellationStar = (function() {
+          var n = random(0, 1, 3);
+          if (n > 0.904) {
+            return parseInt((n * 1000) % 12 + 1, 10);
+          } else {
+            return 0;
+          }
+      })();
+
       create = new Star(
-        random(Star.MINZOOM, Star.MAXZOOM, true),
+        random(Star.MINZOOM, Star.MAXZOOM, 2),
         random(lifeTime_),
-        random(0, Math.PI * 2, true));
+        random(0, Math.PI * 2, 2),
+        constellationStar);
       create.pos.reset(random(create.width(), screenWidth - create.width()),
         random(create.height(), screenHeight - create.height()));
       return create;
@@ -217,21 +239,16 @@ myth.base.classes = (function() {
     /** draw all the stars */
     this.draw = function() {
       for (i = 0; i < array_.length; ++i) {
-        if (array_[i])
-          array_[i].nextlife() ? array_[i].draw() : array_[i] = null;
+        if (array_[i]) {
+          if (!array_[i].status()) {
+            array_[i].nextlife();
+          }
+          array_[i].draw();
+        } else {
+          array_[i] = null;
+        }
       }
     };
-
-    /** 
-    * change the star's status 
-    * @return {boolean} if the star's status has been changed
-    */
-    function changeStatus_(i) {
-      if (array_[i]) {
-        return array_[i].changeStatus();
-      }
-      return false;
-    }
 
     /** 
     * if the p is hit some star, change the status
@@ -239,8 +256,13 @@ myth.base.classes = (function() {
     */
     this.isHit = function(p) {
       for (i = 0; i < array_.length; ++i) {
-        if (array_[i] && Position.hit(p, array_[i], false) && changeStatus_(i)) {
-          return array_[i].pos;
+        if (array_[i] && array_[i].status() && Position.hit(p, array_[i], false)){
+          var t = array_[i].type();
+          array_[i].changeStatus();
+          return {
+            pos: array_[i].pos,
+            type: t
+          };
         }
       }
       return false;
@@ -274,10 +296,10 @@ myth.base.classes = (function() {
       points_[points_.length] = p;
     };
 
-    /** modify the last point */
-    this.last = function(p) {
-      last_ = p;
-    };
+//    /** modify the last point */
+//    this.last = function(p) {
+//      last_ = p;
+//    };
 
     /** draw the path and the last point is the mouse position */
     this.draw = function() {
@@ -293,52 +315,13 @@ myth.base.classes = (function() {
           c.lineTo(points_[i].x(), points_[i].y());
           c.stroke();
         }
-        c.lineTo(last_.x(), last_.y());
-        c.stroke();
-        c.restore();
+//        暂时去掉最后跟踪鼠标的连线
+//        c.lineTo(last_.x(), last_.y());
+//        c.stroke();
+//        c.restore();
       }
     };
   }
-
-  //  /**
-  //  * Timer Class
-  //  * @param {number} the total seconds of the timer
-  //  */
-  //  function Timer(t) {
-  //    var duration_ = t * 1000 || 60 * 1000,
-  //        count_ = 0,
-  //        pauselife_ = false; 
-  //
-  //    /**
-  //    * get the remain seconds curently 
-  //    * @return {String} seconds string
-  //    */
-  //    this.now = function() {
-  //      if (!pauselife_) {
-  //        duration_ =  (count_ - (new Date()).getTime()) < 0 ? 0 : (count_ - (new Date()).getTime());
-  //      }
-  //      return Math.ceil(duration_ / 1000);
-  //    };
-  //
-  //    /** start/restar the timer */
-  //    this.start = function() {
-  //      count_ = duration_ + (new Date()).getTime();
-  //      pauselife_ = false;
-  //    };
-  //
-  //    /** pause the timer */
-  //    this.pause = function() {
-  //      pauselife_ = true;
-  //    };
-  //
-  //    /**
-  //    * if the timer is pause
-  //    * @return {boolean} if the timer is pause
-  //    */
-  //    this.isPause = function() {
-  //      return pauselife_;
-  //    };
-  //  }
 
   return {
     Stars: StarsGroup,

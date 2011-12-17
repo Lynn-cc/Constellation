@@ -25,6 +25,7 @@ myth.game = function(type) {
 
   /** timeDraw */
   function timeDraw(){
+    c.save();
     c.fillStyle = 'white';
     c.font = '30px Arial';
     if (passTime >= FULL_TIME) {
@@ -32,13 +33,16 @@ myth.game = function(type) {
       isTimeout = true;
     }
     c.fillText('时间:' + Math.ceil(FULL_TIME - passTime).toString(), screenWidth -120, 30);
+    c.restore();
   }
 
   /** scoreDraw */
   function scoreDraw(){
+    c.save();
     c.fillStyle = 'yellow';
     c.font = '30px Arial';
     c.fillText('积分:' + score.toString(), 10, 30); 
+    c.restore();
   }
 
   /**
@@ -51,13 +55,18 @@ myth.game = function(type) {
 
   /** stars hit handler */
   function starsHit(ep){
-    var p = starsObject.isHit(ep);
-    if(p) {
-      pathObject.add(p);
-      score++;
-    } else {
-      pathObject.last(ep);
-    }
+    var o = starsObject.isHit(ep);
+    if (o) {
+      pathObject.add(o.pos);
+      //判断是不是特别的星座星星
+      if (o.type !== 0)
+        score += 2;
+      else
+        score++;
+    } 
+//    else {
+//      pathObject.last(ep);
+//    }
   }
 
   function clickHandler(e){
@@ -85,8 +94,10 @@ myth.game = function(type) {
   * gameloop 
   */
   function gameloop(){
+    c.save();
     c.clearRect(0, 0, screenWidth, screenHeight);
     c.drawImage(bg, 0, 0);
+    c.restore();
     pathObject.draw();
     starsObject.draw();
     timeDraw();
