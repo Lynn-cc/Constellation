@@ -2,11 +2,11 @@
 var myth = {};
 myth.base = {};
 myth.init = function() {
-  myth.base.vars().canvas().width = myth.base.vars().width();
-  myth.base.vars().canvas().height = myth.base.vars().height();
+  myth.base.vars.canvas().width = myth.base.vars.width();
+  myth.base.vars.canvas().height = myth.base.vars.height();
 };
 
-myth.base.vars = function() {
+myth.base.vars = (function() {
   var width_ = null || 960,  //to do: get the screen resolution of mobile
       height_ = null || 640,
       interval_ = 25,
@@ -24,10 +24,10 @@ myth.base.vars = function() {
     ctx: function() { return ctx_; },
     background: function() { return backgroundImage_; }
   };
-};
+})();
 
-myth.base.classes = function() {
-  var variables = myth.base.vars(),
+myth.base.classes = (function() {
+  var variables = myth.base.vars,
       c = variables.ctx(),
       interval = variables.interval(),
       screenWidth = variables.width(),
@@ -345,5 +345,5 @@ myth.base.classes = function() {
     Path: Path,
     Position: Position
   };
-};
+})();
 

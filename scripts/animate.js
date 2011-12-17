@@ -3,14 +3,14 @@ myth.game = function(type) {
   var STARS_NUMBER = 20,
       FULL_TIME = 10;
 
-  var variables = myth.base.vars(),
+  var variables = myth.base.vars,
       c = variables.ctx(),
       cvs = variables.canvas(),
       screenWidth = variables.width(),
       screenHeight = variables.height(),
       bg = variables.background(),
       itv = variables.interval(),
-      classes = myth.base.classes(),
+      classes = myth.base.classes,
       starsObject = new classes.Stars(STARS_NUMBER),
       pathObject = new classes.Path(),
       gameInterval = null,
@@ -63,7 +63,7 @@ myth.game = function(type) {
   function clickHandler(e){
     if (!isPause) {  
       stopGame();
-      myth.menu.show('pause', {callback: startGame});
+      myth.menu('pause', {callback: startGame});
     }
   }
 
@@ -99,7 +99,7 @@ myth.game = function(type) {
     if (isTimeout) {
       stopGame();
       cvs.removeEventListener('click', clickHandler, false);
-      myth.menu.show('gameover', {score: score});
+      myth.menu('gameover', {score: score});
     }
   }
 

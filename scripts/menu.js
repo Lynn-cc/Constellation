@@ -1,62 +1,11 @@
-myth.menu = {};
-myth.menu.show = function(type, opt_param) {
-  var variables = myth.base.vars(),
+myth.menu = function(type, opt_param) {
+  var variables = myth.base.vars,
       cvs = variables.canvas(),
       c = variables.ctx(),
       screenWidth = variables.width(),
       screenHeight = variables.height(),
-      classes = myth.base.classes(),
+      classes = myth.base.classes,
       callback = null;
-
-  function show(type) {
-    var currentPage_ = null,
-        lastGameType_ = '',
-        option = '';
-
-    function addEvent_() { 
-      cvs.addEventListener('click', eventFn, false); 
-    }
-    function removeEvent_() {
-      cvs.removeEventListener('click',eventFn, false); 
-    }
-    function eventFn(e) {
-      option = currentPage_.event(new classes.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
-      if (callback) {  
-        removeEvent_();
-        currentPage_ = null;
-        if (option === 'back') {
-          callback();
-        } else if (option === 'retry') {
-          myth.game(lastGameType_);
-        }
-      } else {
-        if (option && pageClass[option]) {
-          currentPage_ = new pageClass[option]();
-        } else if (option) { //option为游戏类型
-          removeEvent_();
-          currentPage_ = null;
-          lastGameType_ = option;
-          myth.game(option);  //外部游戏开始入口函数
-        }
-      }
-    }
-
-    /**
-    * @initialize
-    */
-    if (type === 'mainMenu') {
-      addEvent_();
-      currentPage_ = new pageClass.Home();
-    } else if (type === 'gameover') {
-      currentPage_ = new pageClass.Gameover(opt_param.score);
-      addEvent_();
-    } else if (type === 'pause') {
-      callback = null || opt_param.callback;
-      addEvent_();
-      currentPage_ = new pageClass.Pause();
-    }
-
-  }
 
   /**
   * @param o{object}:
@@ -346,5 +295,54 @@ myth.menu.show = function(type, opt_param) {
     }
   };
 
-  show(type);
+  (function() {
+      var currentPage_ = null,
+          lastGameType_ = '',
+          option = '';
+
+      function addEvent_() { 
+        cvs.addEventListener('click', eventFn, false); 
+      }
+      function removeEvent_() {
+        cvs.removeEventListener('click',eventFn, false); 
+      }
+      function eventFn(e) {
+        option = currentPage_.event(new classes.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
+        if (callback) {  
+          removeEvent_();
+          currentPage_ = null;
+          if (option === 'back') {
+            callback();
+          } else if (option === 'retry') {
+            myth.game(lastGameType_);
+          }
+        } else {
+          if (option && pageClass[option]) {
+            currentPage_ = new pageClass[option]();
+          } else if (option) { //option为游戏类型
+            removeEvent_();
+            currentPage_ = null;
+            lastGameType_ = option;
+            myth.game(option);  //外部游戏开始入口函数
+          }
+        }
+      }
+
+      /**
+      * @initialize
+      */
+      if (type === 'mainMenu') {
+        addEvent_();
+        currentPage_ = new pageClass.Home();
+      } else if (type === 'gameover') {
+        currentPage_ = new pageClass.Gameover(opt_param.score);
+        addEvent_();
+      } else if (type === 'pause') {
+        callback = null || opt_param.callback;
+        addEvent_();
+        currentPage_ = new pageClass.Pause();
+      }
+
+  })();
+
 };
