@@ -2,12 +2,20 @@
 * GameSystem class
 */
 function GameSystem(){
+	var c = GLOBAL.ctx, 
+        starsNumber = 20,
+        backgroundImage = new Image(),
+        starsObject = new GLOBAL.StarsArray(starsNumber),
+        pathObject = new GLOBAL.Path(),
+        timeObject = new GLOBAL.Timer(10),
+        backgroundImageSource = 'images/background.jpg',
+        gameInterval = null,
+        isTimeout = false,
+        score = 0;
+	/***********************************************************************************************************
 	//	elements container
 	var gameElements = [];
 	
-	/**
-	* public
-	*/
 	//  add new element
 	this.add = function(gameElement){
 		if(gameElement){
@@ -21,6 +29,11 @@ function GameSystem(){
         	gameElements.pop();	
 		}
 	}
+	*************************************************************************************************************/
+	
+	/**
+	* public
+	*/
 	//  apply changes
 	this.applyChanges = function(position){
 		changeStarStatus(position);	
