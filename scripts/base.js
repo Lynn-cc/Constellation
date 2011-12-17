@@ -150,8 +150,6 @@ myth.base.classes = (function() {
     this.nextlife = function() {
       if (life_ > 0) {
         life_ -= interval / 1000;
-        if (life <= 0)
-          status_ = false;
         return true;
       } else {
         return false;
@@ -240,12 +238,11 @@ myth.base.classes = (function() {
     this.draw = function() {
       for (i = 0; i < array_.length; ++i) {
         if (array_[i]) {
-          if (!array_[i].status()) {
-            array_[i].nextlife();
+          if (array_[i].status() && !array_[i].nextlife()) {
+            array_[i] = null;
+          } else {
+            array_[i].draw();
           }
-          array_[i].draw();
-        } else {
-          array_[i] = null;
         }
       }
     };
@@ -296,10 +293,10 @@ myth.base.classes = (function() {
       points_[points_.length] = p;
     };
 
-//    /** modify the last point */
-//    this.last = function(p) {
-//      last_ = p;
-//    };
+    //    /** modify the last point */
+    //    this.last = function(p) {
+    //      last_ = p;
+    //    };
 
     /** draw the path and the last point is the mouse position */
     this.draw = function() {
@@ -315,9 +312,9 @@ myth.base.classes = (function() {
           c.lineTo(points_[i].x(), points_[i].y());
           c.stroke();
         }
-//        暂时去掉最后跟踪鼠标的连线
-//        c.lineTo(last_.x(), last_.y());
-//        c.stroke();
+        //        暂时去掉最后跟踪鼠标的连线
+        //        c.lineTo(last_.x(), last_.y());
+        //        c.stroke();
         c.restore();
       }
     };
