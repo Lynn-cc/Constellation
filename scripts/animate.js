@@ -1,123 +1,118 @@
-//Game variables and methods
-function startGame(type){
-  var test = 0;
-    var c = GLOBAL.ctx, 
-        starsNumber = 20,
-        backgroundImage = new Image(),
-        starsObject = new GLOBAL.StarsArray(starsNumber),
-        pathObject = new GLOBAL.Path(),
-        timeObject = new GLOBAL.Timer(10),
-        backgroundImageSource = 'images/background.jpg',
-        gameInterval = null,
-        isTimeout = false,
-        score = 0;
+//Game entry
+myth.game = function(type) {
+  var STARS_NUMBER = 20,
+      FULL_TIME = 10;
 
-    /**
-    * @initialize
-    */
-    function init(){
-      backgroundImage.src = backgroundImageSource;
+  var variables = myth.base.vars,
+      c = variables.ctx(),
+      cvs = variables.canvas(),
+      screenWidth = variables.width(),
+      screenHeight = variables.height(),
+      bg = variables.background(),
+      itv = variables.interval(),
+      classes = myth.base.classes,
+      starsObject = new classes.Stars(STARS_NUMBER),
+      pathObject = new classes.Path(),
+      gameInterval = null,
+      isTimeout = false,
+      isPause = false,
+      score = 0,
+      passTime = 0;
+
+  /**
+  * GameObjectsDraw
+  */
+
+  /** timeDraw */
+  function timeDraw(){
+    c.save();
+    c.fillStyle = 'white';
+    c.font = '30px Arial';
+    if (passTime >= FULL_TIME) {
+      passTime = FULL_TIME;
+      isTimeout = true;
     }
-
-    /**
-    * GameObjectsDraw
-    */
-    /** starsDraw */
-    function starsDraw(){
-      starsObject.lifeDecrease();
-      starsObject.draw();
-    }
-
-    /** pathDraw */
-    function pathDraw(){
-      pathObject.draw();
-    }
-
-    /** timeDraw */
-    function timeDraw(){
-      c.fillStyle = 'white';
-      c.font = '14px Arial';
-      if(timeObject.now() !== 0)
-        c.fillText('时间:' + timeObject.now().toString(), GLOBAL.canvas.width -50, 20);
-      else{
-        c.fillText('时间:' + timeObject.now().toString(), GLOBAL.canvas.width -50, 20);
-        isTimeout = true;
-      }
-    }
-
-    /** scoreDraw */
-    function scoreDraw(){
-      c.fillStyle = 'yellow';
-      c.font = '14px Arial';
-      c.fillText('积分:' + score.toString(), 10, 20); 
-    }
-
-    /**
-    * Handlers
-    */
-    function mousemoveHandler(e){
-      var p = new GLOBAL.Position(e.offsetX || e.pageX, e.offsetY || e.pageY);
-      starsHit(p);
-    }
-
-    /** stars hit handler */
-    function starsHit(ep){
-      var b = starsObject.isHit(ep);
-      if(b != -1 && starsObject.changeStatus(b)) {
-        pathObject.add(starsObject.pos(b));
-        score++;
-      } else {
-        pathObject.last(ep);
-      }
-    }
-
-    function clickHandler(e){
-      if(!timeObject.isPause()){  
-        timeObject.pause();
-        stopGame();
-        var p = MENU.show('pause');
-        p.show(startGame);
-      }
-    }
-
-    /** gameControl */
-    function startGame(){
-      timeObject.start(); //开始计时
-      gameInterval = setInterval(gameloop, GLOBAL.interval);
-      GLOBAL.canvas.addEventListener('mousemove', mousemoveHandler, false);
-      //测试时间对象暂停功能
-      GLOBAL.canvas.addEventListener('click', clickHandler, false);
-    }
-
-    function stopGame(){
-      clearInterval(gameInterval);
-      GLOBAL.canvas.removeEventListener('mousemove', mousemoveHandler, false);
-    }
-
-    /**
-    * gameloop 
-    */
-    function gameloop(){
-      c.clearRect(0, 0, GLOBAL.width, GLOBAL.height);
-      c.drawImage(backgroundImage, 0, 0);
-      pathDraw();
-      starsDraw();
-      timeDraw();
-      scoreDraw();
-      if(starsObject.remainNumber() === 0){
-        starsObject = new GLOBAL.StarsArray(starsNumber);
-        pathObject = new GLOBAL.Path();
-      }
-      if(isTimeout){
-        stopGame();
-        GLOBAL.canvas.removeEventListener('click', clickHandler, false);
-        var p = MENU.show('gameover');
-        p.show(score);
-      }
-    }
-
-    (function main(){
-        init();
-        startGame();
-    })();
+    c.fillText('时间:' + Math.ceil(FULL_TIME - passTime).toString(), screenWidth -120, 30);
+    c.restore();
   }
+
+  /** scoreDraw */
+  function scoreDraw(){
+    c.save();
+    c.fillStyle = 'yellow';
+    c.font = '30px Arial';
+    c.fillText('积分:' + score.toString(), 10, 30); 
+    c.restore();
+  }
+
+  /**
+  * Handlers
+  */
+  function mousemoveHandler(e){
+    var p = new classes.Position(e.offsetX || e.pageX, e.offsetY || e.pageY);
+    starsHit(p);
+  }
+
+  /** stars hit handler */
+  function starsHit(ep){
+    var o = starsObject.isHit(ep);
+    if (o) {
+      pathObject.add(o.pos);
+      //判断是不是特别的星座星星
+      if (o.type !== 0)
+        score += 2;
+      else
+        score++;
+    } 
+//    else {
+//      pathObject.last(ep);
+//    }
+  }
+
+  function clickHandler(e){
+    if (!isPause) {  
+      stopGame();
+      myth.menu('pause', {callback: startGame});
+    }
+  }
+
+  /** gameControl */
+  function startGame(){
+    isPause = false;
+    gameInterval = setInterval(gameloop, itv);
+    cvs.addEventListener('mousemove', mousemoveHandler, false);
+    //测试时间对象暂停功能
+    cvs.addEventListener('click', clickHandler, false);
+  }
+
+  function stopGame(){
+    clearInterval(gameInterval);
+    cvs.removeEventListener('mousemove', mousemoveHandler, false);
+  }
+
+  /**
+  * gameloop 
+  */
+  function gameloop(){
+    c.save();
+    c.clearRect(0, 0, screenWidth, screenHeight);
+    c.drawImage(bg, 0, 0);
+    c.restore();
+    pathObject.draw();
+    starsObject.draw();
+    timeDraw();
+    scoreDraw();
+    passTime += itv / 1000;
+    if (starsObject.remainNumber() === 0) {
+      starsObject = new classes.Stars(STARS_NUMBER);
+      pathObject = new classes.Path();
+    }
+    if (isTimeout) {
+      stopGame();
+      cvs.removeEventListener('click', clickHandler, false);
+      myth.menu('gameover', {score: score});
+    }
+  }
+
+  startGame();
+};
