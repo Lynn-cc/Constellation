@@ -1,54 +1,43 @@
 /**
 * the main logic of the game
 */
-
 function startGame(type) {
-	//  the value of setTimeout
-	var timeoutID;
-	//  main function
-	function main(){
-		//  new a game system
-		var gs = new GameSystem();
-		
-		//  let's begin
-		start(step);
-		
-		//  cyclical function
-		function step(){
-			clearCanvas();
-			gs.applyChanges(getMousePosition());
-			gs.render();
+	
+	// 测试火向模式>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	type = "fire";
+	
+	var gs = new GameSystem();
+		gameInterval = null,
+		timeObject = new GLOBAL.Timer(10),
+		isTimeout = false;
+	
+	gs.init();
+	//  let's begin
+	start(gameloop);
+	/**
+	* gameloop 
+	*/
+	function gameloop(){
+		gs.render(type);
+		if(isTimeout){
+			stop();
+			var p = MENU.show('gameover');
+			p.show(gs.score);
 		}
 	}
-	//  get the position of mouse
-	function getMousePosition(){
-		var x = window.event.x;
-		var y = window.event.y;
-		var position = new GLOBAL.Position(x, y);	
-		
-		return position;
-	}
-	//  start game
-	function start(func) {
-		GLOBAL.Timer.start();
 	
-		var loop = function() {
-			func();
-			if (!GLOBAL.Timer.isPause()){
-				timeoutID = setTimeout(loop, GLOBAL.interval);
-			}
-		}
-	
-		loop();
-	}
-	//  stop game
-	function stop() {
-		clearTimeout(timeoutID);
-		GLOBAL.Timer.pause();
-	}
-	//  clear the main canvas
-	function clearCanvas() {
-		if (GLOBAL.ctx != null)
-			GLOBAL.ctx.clearRect(0, 0, GLOBAL.width, GLOBAL.height);
-	}	
+	/** gameControl */
+    function start(gameloop){
+		timeObject.start(); //开始计时
+		gameInterval = setInterval(gameloop, GLOBAL.interval);
+		GLOBAL.canvas.addEventListener('mousemove', gs.mousemoveHandler, false);
+		//测试时间对象暂停功能
+		//GLOBAL.canvas.addEventListener('click', clickHandler, false);
+    }
+
+    function stop(){
+		clearInterval(gameInterval);
+		GLOBAL.canvas.removeEventListener('mousemove', gs.mousemoveHandler, false);
+		//GLOBAL.canvas.removeEventListener('click', clickHandler, false);
+    }
 }

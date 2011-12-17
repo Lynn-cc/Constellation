@@ -2,16 +2,14 @@
 * GameSystem class
 */
 function GameSystem(){
-	var c = GLOBAL.ctx, 
+	var ctx = GLOBAL.ctx, 
         starsNumber = 20,
         backgroundImage = new Image(),
         starsObject = new GLOBAL.StarsArray(starsNumber),
         pathObject = new GLOBAL.Path(),
-        timeObject = new GLOBAL.Timer(10),
         backgroundImageSource = 'images/background.jpg',
-        gameInterval = null,
-        isTimeout = false,
         score = 0;
+		
 	/***********************************************************************************************************
 	//	elements container
 	var gameElements = [];
@@ -34,60 +32,124 @@ function GameSystem(){
 	/**
 	* public
 	*/
-	//  apply changes
-	this.applyChanges = function(position){
-		changeStarStatus(position);	
-		changeButton(position);
-		changeTimeBox();
-		changeScoreBox();
-		
-		//应用已更改的其它元素
-		
+	/**
+	* @initialize
+	*/
+	this.init = function(){
+	  backgroundImage.src = backgroundImageSource;
 	}
+	
 	//  render all of the elements
-	this.render = function(ctx){
+	this.render = function(type){
+		ctx.clearRect(0, 0, GLOBAL.width, GLOBAL.height);
+		ctx.drawImage(backgroundImage, 0, 0);
+		switch(type){
+			case "fire":
+				renderFire();
+				break;
+			case "wind":
+				renderWind();
+				break;
+			case "water":
+				renderWater();
+				break;
+			case "soil":
+				renderSoil();
+				break;
+			default:
+				alert("未定义游戏模式！");
+		}
+	}
+	// 实现火向模式
+	function renderFire(){
+		/**********************************************************************************************************
 		for(var e in gameElements){
 			var element = gameElements[e];
 			element.draw();	
 		}
+		***********************************************************************************************************/
 		
-		//其它待定要画的元素
-		//尾巴什么的
+		starsDraw();
+		pathDraw();
+		timeDraw();
+		scoreDraw();
+	}
+	// 实现风向模式
+	function renderWind(){
 		
 	}
-	//  start the timer
-	this.startTimer = function(){
-	
-		//开始计时
+	// 实现水向模式
+	function renderWater(){
 		
 	}
-	
+	// 实现土向模式
+	function renderSoil(){
+			
+	}
 	
 	/**
 	* private
-	*/
-	//  change the status of the star
-	function changeStarStatus(position){
-		
-		//判断边界，更换星星状态和图片
-		
-	}
-	//  change the picture of the buttons
-	function changeButton(position){
-		
-		//判断位置，触发按钮点击事件并更改按钮图片
-			
-	}
-	//  change the time box
-	function changeTimeBox(){
-		
-		//增长进度条并更改计时数字
-			
-	}
-	//  change the score box
-	function changeScoreBox(){
-		
-		//更改分数框的内容
+    * GameObjectsDraw
+    */
+    /** starsDraw */
+    function starsDraw(){
+		if(starsObject.remainNumber() === 0){
+			starsObject = new GLOBAL.StarsArray(starsNumber);
+			pathObject = new GLOBAL.Path();
+		}
+		starsObject.lifeDecrease();
+		starsObject.draw();
+    }
+
+    /** pathDraw */
+    function pathDraw(){
+    	pathObject.draw();
+    }
+
+    /** timeDraw */
+    function timeDraw(){
+		ctx.fillStyle = 'white';
+		ctx.font = '14px Arial';
+		if(timeObject.now() !== 0)
+			ctx.fillText('时间:' + timeObject.now().toString(), GLOBAL.canvas.width -50, 20);
+		else{
+			ctx.fillText('时间:' + timeObject.now().toString(), GLOBAL.canvas.width -50, 20);
+			isTimeout = true;
+		}
+    }
+
+    /** scoreDraw */
+    function scoreDraw(){
+		ctx.fillStyle = 'yellow';
+		ctx.font = '14px Arial';
+		ctx.fillText('积分:' + score.toString(), 10, 20); 
+    }
 	
-	}
+	/** stars hit handler */
+    function starsHit(ep){
+		var b = starsObject.isHit(ep);
+		if(b != -1 && starsObject.changeStatus(b)) {
+			pathObject.add(starsObject.pos(b));
+			score++;
+		} else {
+			pathObject.last(ep);
+		}
+    }
+	
+	/**
+    * Handlers
+    */
+    this.mousemoveHandler = function(e){
+		var p = new GLOBAL.Position(e.offsetX || e.pageX, e.offsetY || e.pageY);
+		starsHit(p);
+    }
+
+    this.clickHandler = function(e){
+		if(!timeObject.isPause()){
+			timeObject.pause();
+			stopGame();
+			var p = MENU.show('pause');
+			p.show(startGame);
+		}
+    }
 }
