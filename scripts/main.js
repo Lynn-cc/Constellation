@@ -1,43 +1,68 @@
 /**
 * the main logic of the game
 */
-function startGame(type) {
+myth.game = function(type) {
 	
 	// 测试火向模式>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	type = "fire";
 	
+	var FULL_TIME = 10;
 	var gs = new GameSystem();
+		variables = myth.base.vars,
+		classes = myth.base.classes,
+  	    cvs = variables.canvas(),
+		itv = variables.interval(),
 		gameInterval = null,
-		timeObject = new GLOBAL.Timer(10),
+		isPause = false,
 		isTimeout = false;
+		passTime = 0;
 	
-	gs.init();
 	//  let's begin
-	start(gameloop);
+	startGame(gameloop);
 	/**
 	* gameloop 
 	*/
 	function gameloop(){
 		gs.render(type);
+		passTime += itv / 1000;
 		if(isTimeout){
-			stop();
-			var p = MENU.show('gameover');
-			p.show(gs.score);
+			stopGame();
+			myth.menu('gameover', {score: gs.getScores()});
 		}
 	}
 	
 	/** gameControl */
-    function start(gameloop){
-		timeObject.start(); //开始计时
-		gameInterval = setInterval(gameloop, GLOBAL.interval);
-		GLOBAL.canvas.addEventListener('mousemove', gs.mousemoveHandler, false);
-		//测试时间对象暂停功能
-		//GLOBAL.canvas.addEventListener('click', clickHandler, false);
-    }
+  function startGame(gameloop){
+    isPause = false;
+    gameInterval = setInterval(gameloop, itv);
+    cvs.addEventListener('mousemove', mousemoveHandler, false);
+    //测试时间对象暂停功能
+    cvs.addEventListener('click', clickHandler, false);
+  }
 
-    function stop(){
-		clearInterval(gameInterval);
-		GLOBAL.canvas.removeEventListener('mousemove', gs.mousemoveHandler, false);
-		//GLOBAL.canvas.removeEventListener('click', clickHandler, false);
-    }
+  function stopGame(){
+    clearInterval(gameInterval);
+    cvs.removeEventListener('mousemove', mousemoveHandler, false);
+	cvs.removeEventListener('click', clickHandler, false);
+  }
+  
+  function pauseGame(){
+	  clearInterval(gameInterval);
+	  cvs.removeEventListener('mousemove', mousemoveHandler, false);
+  }
+  
+  /**
+  * Handlers
+  */
+  function mousemoveHandler(e){
+	  var p = new classes.Position(e.offsetX || e.pageX, e.offsetY || e.pageY);
+	  gs.starsHit(p);
+  }
+
+  function clickHandler(e){
+	  if (!isPause) {  
+		pauseGame();
+		myth.menu('pause', {callback: startGame});
+	  }
+  }
 }

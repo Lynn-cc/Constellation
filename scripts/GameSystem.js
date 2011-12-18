@@ -2,13 +2,18 @@
 * GameSystem class
 */
 function GameSystem(){
-	var ctx = GLOBAL.ctx, 
-        starsNumber = 20,
-        backgroundImage = new Image(),
-        starsObject = new GLOBAL.StarsArray(starsNumber),
-        pathObject = new GLOBAL.Path(),
-        backgroundImageSource = 'images/background.jpg',
-        score = 0;
+	var STARS_NUMBER = 20,
+      FULL_TIME = 10;
+
+  var variables = myth.base.vars,
+      c = variables.ctx(),
+      screenWidth = variables.width(),
+      screenHeight = variables.height(),
+      bg = variables.background(),
+      classes = myth.base.classes,
+      starsObject = new classes.Stars(STARS_NUMBER),
+      pathObject = new classes.Path(),
+      score = 0;
 		
 	/***********************************************************************************************************
 	//	elements container
@@ -32,17 +37,13 @@ function GameSystem(){
 	/**
 	* public
 	*/
-	/**
-	* @initialize
-	*/
-	this.init = function(){
-	  backgroundImage.src = backgroundImageSource;
-	}
-	
 	//  render all of the elements
 	this.render = function(type){
-		ctx.clearRect(0, 0, GLOBAL.width, GLOBAL.height);
-		ctx.drawImage(backgroundImage, 0, 0);
+		c.save();
+		c.clearRect(0, 0, screenWidth, screenHeight);
+		c.drawImage(bg, 0, 0);
+		c.restore();
+		
 		switch(type){
 			case "fire":
 				renderFire();
@@ -60,6 +61,29 @@ function GameSystem(){
 				alert("未定义游戏模式！");
 		}
 	}
+	/** stars hit handler */
+	this.starsHit = function(ep){
+		var o = starsObject.isHit(ep);
+		if (o) {
+			pathObject.add(o.pos);
+			//判断是不是特别的星座星星
+			if (o.type !== 0)
+			  score += 2;
+			else
+			  score++;
+		} 
+//	    else {
+//	      pathObject.last(ep);
+//	    }
+	}
+	/** get scores */
+	this.getScores = function(){
+		return score;	
+	}
+	
+	/**
+	* private
+	*/
 	// 实现火向模式
 	function renderFire(){
 		/**********************************************************************************************************
@@ -69,8 +93,8 @@ function GameSystem(){
 		}
 		***********************************************************************************************************/
 		
-		starsDraw();
 		pathDraw();
+		starsDraw();
 		timeDraw();
 		scoreDraw();
 	}
@@ -93,11 +117,11 @@ function GameSystem(){
     */
     /** starsDraw */
     function starsDraw(){
-		if(starsObject.remainNumber() === 0){
-			starsObject = new GLOBAL.StarsArray(starsNumber);
-			pathObject = new GLOBAL.Path();
+		if (starsObject.remainNumber() === 0) {
+			starsObject = new classes.Stars(STARS_NUMBER);
+			pathObject = new classes.Path();
 		}
-		starsObject.lifeDecrease();
+		//starsObject.lifeDecrease();
 		starsObject.draw();
     }
 
@@ -107,49 +131,24 @@ function GameSystem(){
     }
 
     /** timeDraw */
-    function timeDraw(){
-		ctx.fillStyle = 'white';
-		ctx.font = '14px Arial';
-		if(timeObject.now() !== 0)
-			ctx.fillText('时间:' + timeObject.now().toString(), GLOBAL.canvas.width -50, 20);
-		else{
-			ctx.fillText('时间:' + timeObject.now().toString(), GLOBAL.canvas.width -50, 20);
-			isTimeout = true;
-		}
-    }
-
-    /** scoreDraw */
-    function scoreDraw(){
-		ctx.fillStyle = 'yellow';
-		ctx.font = '14px Arial';
-		ctx.fillText('积分:' + score.toString(), 10, 20); 
-    }
-	
-	/** stars hit handler */
-    function starsHit(ep){
-		var b = starsObject.isHit(ep);
-		if(b != -1 && starsObject.changeStatus(b)) {
-			pathObject.add(starsObject.pos(b));
-			score++;
-		} else {
-			pathObject.last(ep);
-		}
-    }
-	
-	/**
-    * Handlers
-    */
-    this.mousemoveHandler = function(e){
-		var p = new GLOBAL.Position(e.offsetX || e.pageX, e.offsetY || e.pageY);
-		starsHit(p);
-    }
-
-    this.clickHandler = function(e){
-		if(!timeObject.isPause()){
-			timeObject.pause();
-			stopGame();
-			var p = MENU.show('pause');
-			p.show(startGame);
-		}
-    }
-}
+	function timeDraw(){
+	  c.save();
+	  c.fillStyle = 'white';
+	  c.font = '30px Arial';
+	  if (passTime >= FULL_TIME) {
+		passTime = FULL_TIME;
+		isTimeout = true;
+	  }
+	  c.fillText('时间:' + Math.ceil(FULL_TIME - passTime).toString(), screenWidth -120, 30);
+	  c.restore();
+	}
+  
+	/** scoreDraw */
+	function scoreDraw(){
+	  c.save();
+	  c.fillStyle = 'yellow';
+	  c.font = '30px Arial';
+	  c.fillText('积分:' + score.toString(), 10, 30); 
+	  c.restore();
+	}
+  }
