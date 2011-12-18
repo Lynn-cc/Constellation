@@ -342,12 +342,14 @@ myth.menu.show = function(type, opt_param) {
 
   function eventFn(e) {
     option_ = page_.event(new baseclasses.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
-    removeEvent_();
-    if (option_ === 'back') {
-      opt_param.callback();
-    } else if (option_ === 'retry') {
-      myth.game(opt_param.gametype);
-    } 
+    if (option_) {
+      removeEvent_();
+      if (option_ === 'back') {
+        opt_param.callback();
+      } else if (option_ === 'retry') {
+        myth.game(opt_param.gametype);
+      } 
+    }
   }
 
   addEvent_();
