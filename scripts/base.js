@@ -40,11 +40,19 @@ myth.base.classes = (function() {
   * @return {number} a random number from min(n, m) to max(n, m), (or 0 to n), not include max(n, m);
   */ 
   function random(n, opt_m, opt_decimals) {  //to do: how to solute the [0, 1] range problem
-    var m = opt_m || 0;
-    if (opt_decimals > 0) {
-      return (Math.floor((Math.min(n, m) + Math.random() * Math.abs(m - n)) * 10 * opt_decimals)) / (10 * opt_decimals);
+    var m = opt_m || 0,
+        rand, swap, times;
+    if (n > m) {
+      swap = n;
+      n = m;
+      m = swap;
     }
-    return Math.min(n, m) + Math.floor(Math.random() * Math.abs(m - n));
+    rand = n + Math.random() * (m - n);
+    if (opt_decimals > 0) {
+      times = Math.pow(10, opt_decimals);
+      return Math.floor(rand * times) / times;
+    }
+    return Math.floor(rand);
   }
 
   /**
