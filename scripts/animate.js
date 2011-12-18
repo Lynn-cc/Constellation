@@ -45,6 +45,14 @@ myth.game = function(type) {
     c.restore();
   }
 
+  /** backgroundDraw */
+  function backgroundDraw() {
+    c.save();
+    c.clearRect(0, 0, screenWidth, screenHeight);
+    c.drawImage(bg, 0, 0);
+    c.restore();
+  }
+
   /**
   * Handlers
   */
@@ -64,15 +72,13 @@ myth.game = function(type) {
       else
         score++;
     } 
-//    else {
-//      pathObject.last(ep);
-//    }
   }
 
+  //测试时间对象暂停功能
   function clickHandler(e){
     if (!isPause) {  
       stopGame();
-      myth.menu('pause', {callback: startGame});
+      myth.menu.show('pause', {callback: startGame, gametype:type});
     }
   }
 
@@ -81,23 +87,21 @@ myth.game = function(type) {
     isPause = false;
     gameInterval = setInterval(gameloop, itv);
     cvs.addEventListener('mousemove', mousemoveHandler, false);
-    //测试时间对象暂停功能
     cvs.addEventListener('click', clickHandler, false);
   }
 
   function stopGame(){
+    isPause = true;
     clearInterval(gameInterval);
     cvs.removeEventListener('mousemove', mousemoveHandler, false);
+    cvs.removeEventListener('click', clickHandler, false);
   }
 
   /**
   * gameloop 
   */
   function gameloop(){
-    c.save();
-    c.clearRect(0, 0, screenWidth, screenHeight);
-    c.drawImage(bg, 0, 0);
-    c.restore();
+    backgroundDraw();
     pathObject.draw();
     starsObject.draw();
     timeDraw();
@@ -109,8 +113,7 @@ myth.game = function(type) {
     }
     if (isTimeout) {
       stopGame();
-      cvs.removeEventListener('click', clickHandler, false);
-      myth.menu('gameover', {score: score});
+      return myth.menu.show('gameover', {score: score, gametype: type});
     }
   }
 

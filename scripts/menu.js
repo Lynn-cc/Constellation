@@ -1,41 +1,40 @@
-myth.menu = function(type, opt_param) {
-  var variables = myth.base.vars,
-      cvs = variables.canvas(),
-      c = variables.ctx(),
-      screenWidth = variables.width(),
-      screenHeight = variables.height(),
-      classes = myth.base.classes,
-      callback = null;
+myth.menu = {};
+myth.menu.pageclasses = (function(){
+    var variables = myth.base.vars,
+        cvs = variables.canvas(),
+        c = variables.ctx(),
+        screenWidth = variables.width(),
+        screenHeight = variables.height(),
+        classes = myth.base.classes;
 
-  /**
-  * @param o{object}:
-  * {pos{object: {x{Number}, y{Number}}, src{String}, width{Number}, height{Number}}}
-  * @return {object}:
-  * {pos{Position}, image{Image}, width{Number}, height{Number}, contain{Function}}
-  */
-  function Option(o) {
-    var pos_ = new classes.Position(o.pos.x, o.pos.y),
-        image_ = new Image(),
-        w_ = o.width,
-        h_ = o.height;
+    /**
+    * @param o{object}:
+    * {pos{object: {x{Number}, y{Number}}, src{String}, width{Number}, height{Number}}}
+    * @return {object}:
+    * {pos{Position}, image{Image}, width{Number}, height{Number}, contain{Function}}
+    */
+    function Option(o) {
+      var pos_ = new classes.Position(o.pos.x, o.pos.y),
+          image_ = new Image(),
+          w_ = o.width,
+          h_ = o.height;
 
-    image_.src = o.src;
-    image_.width = w_;
-    image_.height = h_;
-    return {
-      pos: pos_,
-      image: image_,
-      width: function () { return w_; },
-      height: function () { return h_; },
-      contain: function(p) {
-        return classes.Position.hit(p, this, true);
-      }
-    };
-  }
+      image_.src = o.src;
+      image_.width = w_;
+      image_.height = h_;
+      return {
+        pos: pos_,
+        image: image_,
+        width: function () { return w_; },
+        height: function () { return h_; },
+        contain: function(p) {
+          return classes.Position.hit(p, this, true);
+        }
+      };
+    }
 
-  //Pages Classes: Home/Start/Help/Pause/Gameover
-  var pageClass = {
-    Home: function() {
+    //Pages Classes: Home/Start/Help/Pause/Gameover
+    function Home() {
       var objects_ = {
         background: Option({ pos: {x: 0, y: 0}, src: 'images/background.jpg', width: 960, height: 640}),
         logo: Option({ pos: {x: 210, y: 30}, src: 'images/logo.png', width: 553, height: 186}),
@@ -46,7 +45,7 @@ myth.menu = function(type, opt_param) {
       count = 0; //图片加载计数器
 
 
-      function show_() {
+      function draw_() {
         c.save();
         c.clearRect(0, 0, screenWidth, screenHeight);
         for (o in objects_) {
@@ -65,19 +64,23 @@ myth.menu = function(type, opt_param) {
         }
       };
 
-      for (o in objects_) {
-        if (objects_[o].image.complete) {
-          show_();
-        } else {
-          objects_[o].image.onload = function() {
+      this.show = function() {
+//        draw_();
+        for (o in objects_) {
+          if (objects_[o].image.complete) {
             ++count;
-            if (count == 4) show_();
-          };
+            if (count == 4) draw_();
+          } else {
+            objects_[o].image.onload = function() {
+              ++count;
+              if (count == 4) draw_();
+            };
+          }
         }
-      }
-    },
+      };
+    }
 
-    Start: function() {
+    function Start() {
       var objects_ = {
         background: Option({ pos: {x: 0, y: 0}, src: 'images/startBackground.jpg', width: 960, height: 640}),
         wind : Option({ pos: {x: 280, y: 135}, src: 'images/wind.png', width: 385, height: 95}),
@@ -88,7 +91,7 @@ myth.menu = function(type, opt_param) {
       o = null,
       count = 0;
 
-      function show_() {
+      function draw_() {
         c.save();
         c.clearRect(0, 0, screenWidth, screenHeight);
         for (o in objects_) {
@@ -111,19 +114,23 @@ myth.menu = function(type, opt_param) {
         }
       };
 
-      for (o in objects_) {
-        if (objects_[o].image.complete) {
-          show_();
-        } else {
-          objects_[o].image.onload = function() {
-            ++count;
-            if (count == 5) show_();
-          };
+      this.show = function() {
+//        draw_();
+        for (o in objects_) {
+          if (objects_[o].image.complete) {
+            count++;
+            if (count == 5) draw_();
+          } else {
+            objects_[o].image.onload = function() {
+              ++count;
+              if (count == 5) draw_();
+            };
+          }
         }
-      }
-    },
+      };
+    }
 
-    Help: function() {
+    function Help() {
       var pageNumber_ = 3, //总页数
           n = 0,
           o = null,
@@ -145,6 +152,7 @@ myth.menu = function(type, opt_param) {
         prePage: prePage_,
         nextPage: nextPage_,
         home: Option({ pos: {x: 830, y: 155}, src: 'images/helpBack.png', width:20, height:20}) }; 
+
       function changePage_(m) {
         if (n === 0) {
           objects_.prePage = null;
@@ -173,7 +181,8 @@ myth.menu = function(type, opt_param) {
       objects_.prePage = null;
       objects_.page = pagePic_[0];
 
-      function show_() {
+
+      function draw_() {
         c.save();
         c.clearRect(0, 0, screenWidth, screenHeight);
         for (o in objects_) {
@@ -187,12 +196,12 @@ myth.menu = function(type, opt_param) {
         if (objects_.prePage && objects_.prePage.contain(p)) {
           --n;
           changePage_(n);
-          show_();
+          draw_();
           return false;
         } else if (objects_.nextPage && objects_.nextPage.contain(p)) {
           ++n;
           changePage_(n);
-          show_();
+          draw_();
           return false;
         } else if (objects_.home.contain(p)) {
           return 'Home';
@@ -201,22 +210,28 @@ myth.menu = function(type, opt_param) {
         }
       };
 
-      for (o in objects_) {
-        if (objects_[o]) {
-          if (objects_[o].image.complete) {
-            show_();
+      this.show = function() {
+//        draw_();
+        for (o in objects_) {
+          if (objects_[o]) {
+            if (objects_[o].image.complete) {
+              count++;
+              if (count == 5) draw_();
+            } else {
+              objects_[o].image.onload = function() {
+                ++count;
+                if (count == 5) draw_();
+              };
+            }
           } else {
-            objects_[o].image.onload = function() {
-              ++count;
-              if (count == 4) show_();
-            };
+            count++;
           }
         }
-      }
+      };
 
-    },
+    }
 
-    Pause: function() {
+    function Pause() {
       var count = 0,
           o = null,
       objects_ = {
@@ -225,7 +240,7 @@ myth.menu = function(type, opt_param) {
         retry: Option({pos: {x: 380, y: 290}, src: 'images/retry.png', width:208, height:62})
       };
 
-      function show_() {
+      function draw_() {
         c.save();
         for (o in objects_) {
           c.drawImage(objects_[o].image, objects_[o].pos.x(), objects_[o].pos.y());
@@ -241,20 +256,23 @@ myth.menu = function(type, opt_param) {
         } 
       };
 
-      for (o in objects_) {
-        if (objects_[o].image.complete) {
-          show_();
-        } else {
-          objects_[o].image.onload = function() {
+      this.show = function() {
+//        draw_();
+        for (o in objects_) {
+          if (objects_[o].image.complete) {
             ++count;
-            if (count === 3) show_();
-          };
+            if (count == 3) draw_();
+          } else {
+            objects_[o].image.onload = function() {
+              ++count;
+              if (count === 3) draw_();
+            };
+          }
         }
-      }
+      };
+    }
 
-    },
-
-    Gameover: function(score) {
+    function Gameover(score) {
       var count = 0,
           o = null,
       objects_ = {
@@ -262,7 +280,7 @@ myth.menu = function(type, opt_param) {
         retry: Option({pos: {x: 380, y: 290}, src: 'images/again.png', width:208, height:62})
       };
 
-      function show_() {
+      function draw_() {
         c.save();
         for (o in objects_) {
           c.drawImage(objects_[o].image, objects_[o].pos.x(), objects_[o].pos.y());
@@ -281,68 +299,98 @@ myth.menu = function(type, opt_param) {
         } 
       };
 
-      for (o in objects_) {
-        if (objects_[o].image.complete) {
-          show_();
-        } else {
-          objects_[o].image.onload = function() {
-            ++count;
-            if (count === 2) show_();
-          };
+      this.show = function() {
+//        draw_();
+        for (o in objects_) {
+          if (objects_[o].image.complete) {
+            count++;
+            if (count == 2) draw_();
+          } else {
+            objects_[o].image.onload = function() {
+              ++count;
+              if (count === 2) draw_();
+            };
+          }
         }
-      }
-
+      };
     }
-  };
 
-  (function() {
-      var currentPage_ = null,
-          lastGameType_ = '',
-          option = '';
+    return {
+      Home: Home,
+      Start: Start,
+      Help: Help,
+      Pause: Pause,
+      Gameover: Gameover
+    };
 
-      function addEvent_() { 
-        cvs.addEventListener('click', eventFn, false); 
+})();
+
+myth.menu.show = function(type, opt_param) {
+  var baseclasses = myth.base.classes,
+      cvs = myth.base.vars.canvas(),
+      pageclasses = myth.menu.pageclasses,
+      option_ = '',
+      page_ = null;
+
+  function addEvent_() { 
+    cvs.addEventListener('click', eventFn, false); 
+  }
+
+  function removeEvent_() {
+    cvs.removeEventListener('click',eventFn, false); 
+  }
+
+  function eventFn(e) {
+    option_ = page_.event(new baseclasses.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
+    removeEvent_();
+    if (option_ === 'back') {
+      opt_param.callback();
+    } else if (option_ === 'retry') {
+      myth.game(opt_param.gametype);
+    } 
+  }
+
+  addEvent_();
+  if (type === 'gameover') {
+    page_ = new pageclasses.Gameover(opt_param.score);
+  } else if (type === 'pause') {
+    page_ = new pageclasses.Pause();
+  }
+  page_.show();
+};
+
+myth.menu.main = function() { 
+  var baseclasses = myth.base.classes,
+      cvs = myth.base.vars.canvas(),
+      pageclasses = myth.menu.pageclasses,
+      page_ = null,
+      option_ = '';
+
+  function addEvent_() { 
+    cvs.addEventListener('click', eventFn, false); 
+  }
+  function removeEvent_() {
+    cvs.removeEventListener('click',eventFn, false); 
+  }
+
+  function eventFn(e) {
+    option_ = page_.event(new baseclasses.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
+    if (option_) {
+      if (pageclasses[option_]){
+        page_ = new pageclasses[option_]();
+        page_.show();
+      } else {
+        removeEvent_();
+        myth.game(option_);  //外部游戏开始入口函数
       }
-      function removeEvent_() {
-        cvs.removeEventListener('click',eventFn, false); 
-      }
-      function eventFn(e) {
-        option = currentPage_.event(new classes.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
-        if (callback) {  
-          removeEvent_();
-          currentPage_ = null;
-          if (option === 'back') {
-            callback();
-          } else if (option === 'retry') {
-            myth.game(lastGameType_);
-          }
-        } else {
-          if (option && pageClass[option]) {
-            currentPage_ = new pageClass[option]();
-          } else if (option) { //option为游戏类型
-            removeEvent_();
-            currentPage_ = null;
-            lastGameType_ = option;
-            myth.game(option);  //外部游戏开始入口函数
-          }
-        }
-      }
+    }
+  }
 
-      /**
-      * @initialize
-      */
-      if (type === 'mainMenu') {
-        addEvent_();
-        currentPage_ = new pageClass.Home();
-      } else if (type === 'gameover') {
-        currentPage_ = new pageClass.Gameover(opt_param.score);
-        addEvent_();
-      } else if (type === 'pause') {
-        callback = null || opt_param.callback;
-        addEvent_();
-        currentPage_ = new pageClass.Pause();
-      }
+  /**
+  * @initialize
+  */
+  addEvent_();
+  page_ = new pageclasses.Home();
 
-  })();
-
+  page_.show();
 };
