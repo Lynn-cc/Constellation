@@ -124,7 +124,8 @@ myth.base.classes = (function() {
         height_ = this.HEIGHT * zoom_,
         pos_ = new Position(0, 0),
         type_ = 0,
-        image_ = new Image();
+        image_ = new Image(),
+        audio_ = new Audio('./sounds/hit.wav');
 
     /**
     * @initilize
@@ -141,6 +142,7 @@ myth.base.classes = (function() {
     this.width = function() { return width_; };
     this.height = function() { return height_; };
     this.pos = pos_;
+    this.play = function() { audio_.play(); };
 
     /** draw the star */
     this.draw = function() {
@@ -204,7 +206,7 @@ myth.base.classes = (function() {
   * @param {number} n: the number of the stars to be initilized
   */
   function StarsGroup(n) {
-    var lifeTime_ = 4, 
+    var lifeTime_ = 3, 
         array_ = [], 
         i = 0, 
         j = 0,
@@ -228,7 +230,7 @@ myth.base.classes = (function() {
 
       create = new Star(
         random(Star.MINZOOM, Star.MAXZOOM, 2),
-        random(lifeTime_),
+        random(1, lifeTime_, 2),
         random(0, Math.PI * 2, 2),
         constellationStar);
       create.pos.reset(random(create.width(), screenWidth - create.width()),
@@ -264,6 +266,7 @@ myth.base.classes = (function() {
         if (array_[i] && array_[i].status() && Position.hit(p, array_[i], false)){
           var t = array_[i].type();
           array_[i].changeStatus();
+          array_[i].play();
           return {
             pos: array_[i].pos,
             type: t
