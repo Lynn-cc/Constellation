@@ -3,7 +3,7 @@
 */
 function GameSystem(){
 	var STARS_NUMBER = 20,
-      FULL_TIME = 10;
+        FULL_TIME = 10;
 
   var variables = myth.base.vars,
       c = variables.ctx(),

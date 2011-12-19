@@ -6,7 +6,7 @@ myth.game = function(type) {
 	// 测试火向模式>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	type = "fire";
 	
-	var FULL_TIME = 10;
+	//var FULL_TIME = 10;
 	var gs = new GameSystem();
 		variables = myth.base.vars,
 		classes = myth.base.classes,
@@ -27,12 +27,12 @@ myth.game = function(type) {
 		passTime += itv / 1000;
 		if(isTimeout){
 			stopGame();
-			myth.menu('gameover', {score: gs.getScores()});
+			myth.menu.show('gameover', {score: gs.getScores()});
 		}
 	}
 	
 	/** gameControl */
-  function startGame(gameloop){
+  function startGame(){
     isPause = false;
     gameInterval = setInterval(gameloop, itv);
     cvs.addEventListener('mousemove', mousemoveHandler, false);
@@ -46,11 +46,6 @@ myth.game = function(type) {
 	cvs.removeEventListener('click', clickHandler, false);
   }
   
-  function pauseGame(){
-	  clearInterval(gameInterval);
-	  cvs.removeEventListener('mousemove', mousemoveHandler, false);
-  }
-  
   /**
   * Handlers
   */
@@ -61,8 +56,8 @@ myth.game = function(type) {
 
   function clickHandler(e){
 	  if (!isPause) {  
-		pauseGame();
-		myth.menu('pause', {callback: startGame});
+		stopGame();
+		myth.menu.show('pause', {callback: startGame});
 	  }
   }
 }
