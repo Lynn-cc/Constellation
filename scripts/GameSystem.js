@@ -54,7 +54,7 @@ function GameSystem(){
 			case "water":
 				renderWater();
 				break;
-			case "soil":
+			case "earth":
 				renderSoil();
 				break;
 			default:
@@ -107,7 +107,7 @@ function GameSystem(){
 		
 	}
 	// 实现土向模式
-	function renderSoil(){
+	function renderEarth(){
 			
 	}
 	
