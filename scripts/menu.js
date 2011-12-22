@@ -326,19 +326,15 @@ myth.menu.pageclasses = (function() {
 })();
 
 myth.menu.show = function(type, opt_param) {
-  var baseclasses = myth.base.classes,
-      cvs = myth.base.vars.canvas(),
-      pageclasses = myth.menu.pageclasses,
+  var pageclasses = myth.menu.pageclasses,
       option_ = '',
       page_ = null;
 
-  if (type === 'gameover') {
+  if (type === 'Gameover') 
     page_ = new pageclasses.Gameover(opt_param.score);
-  } else if (type === 'pause') {
-    page_ = new pageclasses.Pause();
-  }
-  myth.base.event.changeHandler(page_, opt_param.callback);
+
   page_.show();
+  myth.base.event.changeHandler(page_, opt_param);
 };
 
 
@@ -347,48 +343,7 @@ myth.menu.main = function() {
       page_ = null,
       option_ = '';
 
-  /**
-  * @initialize
-  */
   page_ = new pageclasses.Home();
   page_.show();
   myth.base.event.changeHandler(page_);
 };
-
-
-myth.base.event = (function() {
-    var o_ = null,
-        option_ = null,
-        param_ = null;
-
-    function changeHandler(o, opt_param) {
-      o_ = o;
-      param_ = opt_param;
-    }
-
-    function handler(e) {
-      option_ = o_.event(new myth.menu.baseclasses.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
-      if (option_) {
-        if (myth.menu.pageclasses[option_]) {
-          o = new myth.menu.pageclasses[option_];
-          o.show();
-        } else if (['wind', 'fire', 'water', 'earth'].join('').search(option_) != -1){
-          o = { event: function() { return 'pause'; } };
-          myth.game(option_);  //外部游戏开始入口函数
-        } else if (option_ === 'back') {
-          opt_param.callback();
-        } else if (option_ === 'retry') {
-          myth.game(opt_param.gametype);
-        } 
-      }
-    }
-
-    return {
-      handler:handler,
-      changeHandler:changeHandler
-    };
-})();
-
-myth.base.vars.canvas().addEventListener('click', myth.base.event.handler, false);
-
-

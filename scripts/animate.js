@@ -57,13 +57,7 @@ myth.game = function(type) {
   * Handlers
   */
   function mousemoveHandler(e){
-    var p = new classes.Position(e.offsetX || e.pageX, e.offsetY || e.pageY);
-    starsHit(p);
-  }
-
-  /** stars hit handler */
-  function starsHit(ep){
-    var o = starsObject.isHit(ep);
+    var o = starsObject.isHit(new classes.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
     if (o) {
       pathObject.add(o.pos);
       //判断是不是特别的星座星星
@@ -71,36 +65,34 @@ myth.game = function(type) {
         score += 2;
       else
         score++;
-    } 
-  }
-
-  //测试时间对象暂停功能
-  function clickHandler(e){
-    if (!isPause) {  
-      stopGame();
-      myth.menu.show('pause', {callback: startGame, gametype:type});
     }
   }
 
   /** gameControl */
-  function startGame(){
+  function startGame() {
     isPause = false;
     gameInterval = setInterval(gameloop, itv);
     cvs.addEventListener('mousemove', mousemoveHandler, false);
-    cvs.addEventListener('click', clickHandler, false);
+    myth.base.event.changeHandler({
+        event: function(p) { return 'Pause'; }
+      }, {
+        start: startGame,
+        stop: stopGame,
+        gametype: type
+    });
+
   }
 
-  function stopGame(){
+  function stopGame() {
     isPause = true;
     clearInterval(gameInterval);
     cvs.removeEventListener('mousemove', mousemoveHandler, false);
-    cvs.removeEventListener('click', clickHandler, false);
   }
 
   /**
   * gameloop 
   */
-  function gameloop(){
+  function gameloop() {
     backgroundDraw();
     pathObject.draw();
     starsObject.draw();
@@ -113,7 +105,7 @@ myth.game = function(type) {
     }
     if (isTimeout) {
       stopGame();
-      return myth.menu.show('gameover', {score: score, gametype: type});
+      myth.menu.show('Gameover', {score: score, gametype: type});
     }
   }
 
