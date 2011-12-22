@@ -1,5 +1,5 @@
 myth.menu = {};
-myth.menu.pageclasses = (function(){
+myth.menu.pageclasses = (function() {
     var variables = myth.base.vars,
         cvs = variables.canvas(),
         c = variables.ctx(),
@@ -332,67 +332,63 @@ myth.menu.show = function(type, opt_param) {
       option_ = '',
       page_ = null;
 
-  function addEvent_() { 
-    cvs.addEventListener('click', eventFn, false); 
-  }
-
-  function removeEvent_() {
-    cvs.removeEventListener('click',eventFn, false); 
-  }
-
-  function eventFn(e) {
-    option_ = page_.event(new baseclasses.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
-    if (option_) {
-      removeEvent_();
-      if (option_ === 'back') {
-        opt_param.callback();
-      } else if (option_ === 'retry') {
-        myth.game(opt_param.gametype);
-      } 
-    }
-  }
-
-  addEvent_();
   if (type === 'gameover') {
     page_ = new pageclasses.Gameover(opt_param.score);
   } else if (type === 'pause') {
     page_ = new pageclasses.Pause();
   }
+  myth.base.event.changeHandler(page_, opt_param.callback);
   page_.show();
 };
 
+
 myth.menu.main = function() { 
-  var baseclasses = myth.base.classes,
-      cvs = myth.base.vars.canvas(),
-      pageclasses = myth.menu.pageclasses,
+  var pageclasses = myth.menu.pageclasses,
       page_ = null,
       option_ = '';
-
-  function addEvent_() { 
-    cvs.addEventListener('click', eventFn, false); 
-  }
-  function removeEvent_() {
-    cvs.removeEventListener('click',eventFn, false); 
-  }
-
-  function eventFn(e) {
-    option_ = page_.event(new baseclasses.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
-    if (option_) {
-      if (pageclasses[option_]){
-        page_ = new pageclasses[option_]();
-        page_.show();
-      } else {
-        removeEvent_();
-        myth.game(option_);  //外部游戏开始入口函数
-      }
-    }
-  }
 
   /**
   * @initialize
   */
-  addEvent_();
   page_ = new pageclasses.Home();
-
   page_.show();
+  myth.base.event.changeHandler(page_);
 };
+
+
+myth.base.event = (function() {
+    var o_ = null,
+        option_ = null,
+        param_ = null;
+
+    function changeHandler(o, opt_param) {
+      o_ = o;
+      param_ = opt_param;
+    }
+
+    function handler(e) {
+      option_ = o_.event(new myth.menu.baseclasses.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
+      if (option_) {
+        if (myth.menu.pageclasses[option_]) {
+          o = new myth.menu.pageclasses[option_];
+          o.show();
+        } else if (['wind', 'fire', 'water', 'earth'].join('').search(option_) != -1){
+          o = { event: function() { return 'pause'; } };
+          myth.game(option_);  //外部游戏开始入口函数
+        } else if (option_ === 'back') {
+          opt_param.callback();
+        } else if (option_ === 'retry') {
+          myth.game(opt_param.gametype);
+        } 
+      }
+    }
+
+    return {
+      handler:handler,
+      changeHandler:changeHandler
+    };
+})();
+
+myth.base.vars.canvas().addEventListener('click', myth.base.event.handler, false);
+
+
