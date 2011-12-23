@@ -22,6 +22,7 @@ myth.base.event = (function() {
       if (option_) {
         if (myth.menu.pageclasses[option_]) {
           if (option_ === 'Pause') param_.stop();
+          if (option_ === 'Home') param_ = null;
           pageObject_ = new myth.menu.pageclasses[option_];
           pageObject_.show();
         } else if (['wind', 'fire', 'water', 'earth'].join('').search(option_) != -1) {
@@ -46,7 +47,7 @@ myth.base.event = (function() {
 myth.base.vars = (function() {
     var width_ = null || 960,  //to do: get the screen resolution of mobile
         height_ = null || 640,
-        interval_ = 25,
+        interval_ = 1000 / 25,
         canvas_ = document.getElementById('main'),
         ctx_ = document.getElementById('main').getContext('2d'),
         backgroundImage_ = new Image();

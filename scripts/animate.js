@@ -13,6 +13,7 @@ myth.game = function(type) {
       classes = myth.base.classes,
       starsObject = new classes.Stars(STARS_NUMBER),
       pathObject = new classes.Path(),
+      gameBackgroundPage = new myth.menu.pageclasses.GameBackground(),
       gameInterval = null,
       isTimeout = false,
       isPause = false,
@@ -47,16 +48,22 @@ myth.game = function(type) {
 
   /** backgroundDraw */
   function backgroundDraw() {
-    c.save();
-    c.clearRect(0, 0, screenWidth, screenHeight);
-    c.drawImage(bg, 0, 0);
-    c.restore();
+    gameBackgroundPage.show();
   }
 
   /**
   * Handlers
   */
-  function mousemoveHandler(e){
+
+  function addClickHandler() {
+    myth.base.event.changeHandler(gameBackgroundPage, {
+        start: startGame,
+        stop: stopGame,
+        gametype: type
+    });
+  }
+
+  function mousemoveHandler(e) {
     var o = starsObject.isHit(new classes.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
     if (o) {
       pathObject.add(o.pos);
@@ -68,25 +75,19 @@ myth.game = function(type) {
     }
   }
 
+
   /** gameControl */
   function startGame() {
     isPause = false;
     gameInterval = setInterval(gameloop, itv);
-    cvs.addEventListener('mousemove', mousemoveHandler, false);
-    myth.base.event.changeHandler({
-        event: function(p) { return 'Pause'; }
-      }, {
-        start: startGame,
-        stop: stopGame,
-        gametype: type
-    });
-
+    cvs.addEventListener('mousemove',mousemoveHandler, false);
+    addClickHandler();
   }
 
   function stopGame() {
     isPause = true;
     clearInterval(gameInterval);
-    cvs.removeEventListener('mousemove', mousemoveHandler, false);
+    cvs.removeEventListener('mousemove',mousemoveHandler, false);
   }
 
   /**
@@ -111,3 +112,4 @@ myth.game = function(type) {
 
   startGame();
 };
+

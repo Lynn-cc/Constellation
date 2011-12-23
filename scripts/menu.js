@@ -86,7 +86,8 @@ myth.menu.pageclasses = (function() {
         wind : Option({ pos: {x: 280, y: 135}, src: 'images/wind.png', width: 385, height: 95}),
         water : Option({ pos: {x: 280, y: 245}, src: 'images/water.png', width: 385, height: 95}),
         earth : Option({ pos: {x: 280, y: 355}, src: 'images/earth.png', width: 285, height: 95}),
-        fire : Option({ pos: {x: 280, y: 465}, src: 'images/fire.png', width: 385, height: 95})
+        fire : Option({ pos: {x: 280, y: 465}, src: 'images/fire.png', width: 385, height: 95}),
+        home: Option({ pos: {x: 760, y: 560}, src: 'images/home.png', width:48, height:47}) 
       },
       o = null,
       count = 0;
@@ -109,6 +110,8 @@ myth.menu.pageclasses = (function() {
           return 'earth';
         } else if (objects_.fire.contain(p)) {
           return 'fire';
+        } else if (objects_.home.contain(p)) {
+          return 'Home';
         } else {
           return false;
         }
@@ -151,7 +154,8 @@ myth.menu.pageclasses = (function() {
         page: null,
         prePage: prePage_,
         nextPage: nextPage_,
-        home: Option({ pos: {x: 830, y: 155}, src: 'images/helpBack.png', width:20, height:20}) }; 
+        home: Option({ pos: {x: 760, y: 560}, src: 'images/home.png', width:48, height:47}) 
+      }; 
 
       function changePage_(m) {
         if (n === 0) {
@@ -237,7 +241,8 @@ myth.menu.pageclasses = (function() {
       objects_ = {
         background: Option({pos: {x: 0, y:0}, src: 'images/pauseBackground.png', width:960, height:640}),
         back: Option({pos: {x: 380, y: 220}, src: 'images/pauseBack.png', width:208, height:61}),
-        retry: Option({pos: {x: 380, y: 290}, src: 'images/retry.png', width:208, height:62})
+        retry: Option({pos: {x: 380, y: 290}, src: 'images/retry.png', width:208, height:62}),
+        home: Option({pos: {x: 760, y: 560}, src: 'images/home.png', width:48, height:47})
       };
 
       function draw_() {
@@ -253,7 +258,9 @@ myth.menu.pageclasses = (function() {
           return 'back';
         } else if (objects_.retry.contain(p)) {
           return 'retry';
-        } 
+        } else if (objects_.home.contain(p)) {
+          return 'Home';
+        }
       };
 
       this.show = function() {
@@ -277,7 +284,8 @@ myth.menu.pageclasses = (function() {
           o = null,
       objects_ = {
         background: Option({pos: {x: 0, y:0}, src: 'images/pauseBackground.png', width:960, height:640}),
-        retry: Option({pos: {x: 380, y: 290}, src: 'images/again.png', width:208, height:62})
+        retry: Option({pos: {x: 380, y: 290}, src: 'images/again.png', width:208, height:62}),
+        home: Option({pos: {x: 760, y: 560}, src: 'images/home.png', width:48, height:47})
       };
 
       function draw_() {
@@ -296,7 +304,9 @@ myth.menu.pageclasses = (function() {
       this.event = function(p) {
         if (objects_.retry.contain(p)) {
           return 'retry';
-        } 
+        } else if (objects_.home.contain(p)) {
+          return 'Home';
+        }
       };
 
       this.show = function() {
@@ -315,12 +325,55 @@ myth.menu.pageclasses = (function() {
       };
     }
 
+    function GameBackground() {
+      var count = 0,
+          o = null,
+      objects_ = {
+        background: Option({pos: {x: 0, y:0}, src: 'images/background.jpg', width:960, height:640}),
+        pause: Option({pos: {x: 760, y: 560}, src: 'images/pause.png', width:48, height:47})
+      };
+
+      function draw_() {
+        c.save();
+        c.clearRect(0, 0, screenWidth, screenHeight);
+        for (o in objects_) {
+          c.drawImage(objects_[o].image, objects_[o].pos.x(), objects_[o].pos.y());
+        }
+        c.restore();
+      }
+
+      this.event = function(p) {
+        if (objects_.pause.contain(p)) {
+          return 'Pause';
+        } 
+      };
+
+      this.show = function() {
+        if (count == 2) 
+          draw_();
+        else {
+          for (o in objects_) {
+            if (objects_[o].image.complete) {
+              count++;
+              if (count == 2) draw_();
+            } else {
+              objects_[o].image.onload = function() {
+                ++count;
+                if (count === 2) draw_();
+              };
+            }
+          }
+        }
+      };
+    }
+
     return {
       Home: Home,
       Start: Start,
       Help: Help,
       Pause: Pause,
-      Gameover: Gameover
+      Gameover: Gameover,
+      GameBackground: GameBackground
     };
 
 })();
