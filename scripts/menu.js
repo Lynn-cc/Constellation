@@ -5,7 +5,9 @@ myth.menu.pageclasses = (function() {
         c = variables.ctx(),
         screenWidth = variables.width(),
         screenHeight = variables.height(),
-        classes = myth.base.classes;
+        classes = myth.base.classes,
+        soundsButton = new SoundsControl(),
+        homeButton = Option({ pos: {x: 790, y: 580}, src: 'images/home.png', width:48, height:47});
 
     /**
     * @param o{object}:
@@ -33,13 +35,36 @@ myth.menu.pageclasses = (function() {
       };
     }
 
+    function SoundsControl() {
+      var onOption_ = Option({ pos: {x: 870, y: 580}, src: 'images/on.png', width: 73, height: 74}),
+          offOption_ = Option({ pos: {x: 870, y: 580}, src: 'images/off.png', width: 73, height: 74}),
+          soundsObjects_ = myth.base.vars.sounds,
+          current_ = onOption_;
+
+      function setsounds(value) {
+        for (s in soundsObjects_) {
+          soundsObjects_[s].volume = value;
+        }
+      }
+
+      this.event = function() {
+        current_ === onOption_ ? (current_ = offOption_) : (current_ = onOption_);
+        setsounds(current_ === onOption_ ? 1 : 0);
+      };
+
+      this.option = function() {
+        return current_;
+      };
+    }
+
     //Pages Classes: Home/Start/Help/Pause/Gameover
     function Home() {
       var objects_ = {
         background: Option({ pos: {x: 0, y: 0}, src: 'images/background.jpg', width: 960, height: 640}),
         logo: Option({ pos: {x: 210, y: 30}, src: 'images/logo.png', width: 553, height: 186}),
         start: Option({ pos: {x: 350, y: 250}, src: 'images/start.png', width: 270, height: 81}),
-        help: Option({ pos: {x: 350, y: 360}, src: 'images/help.png', width: 270, height: 81})
+        help: Option({ pos: {x: 350, y: 360}, src: 'images/help.png', width: 270, height: 81}),
+        sound: soundsButton.option()
       },
       o = null, //历遍临时变量
       count = 0; //图片加载计数器
@@ -59,21 +84,26 @@ myth.menu.pageclasses = (function() {
           return 'Start';
         } else if (objects_.help.contain(p)) {
           return 'Help';
+        } else if (objects_.sound.contain(p)) {
+          soundsButton.event();
+          objects_.sound = soundsButton.option();
+          draw_();
+          return false;
         } else {
           return false;
         }
       };
 
       this.show = function() {
-//        draw_();
+        //        draw_();
         for (o in objects_) {
           if (objects_[o].image.complete) {
             ++count;
-            if (count == 4) draw_();
+            if (count == 5) draw_();
           } else {
             objects_[o].image.onload = function() {
               ++count;
-              if (count == 4) draw_();
+              if (count == 5) draw_();
             };
           }
         }
@@ -87,7 +117,8 @@ myth.menu.pageclasses = (function() {
         water : Option({ pos: {x: 280, y: 245}, src: 'images/water.png', width: 385, height: 95}),
         earth : Option({ pos: {x: 280, y: 355}, src: 'images/earth.png', width: 285, height: 95}),
         fire : Option({ pos: {x: 280, y: 465}, src: 'images/fire.png', width: 385, height: 95}),
-        home: Option({ pos: {x: 760, y: 560}, src: 'images/home.png', width:48, height:47}) 
+        home: homeButton,
+        sound: soundsButton.option()
       },
       o = null,
       count = 0;
@@ -112,21 +143,26 @@ myth.menu.pageclasses = (function() {
           return 'fire';
         } else if (objects_.home.contain(p)) {
           return 'Home';
+        } else if (objects_.sound.contain(p)) {
+          soundsButton.event();
+          objects_.sound = soundsButton.option();
+          draw_();
+          return false;
         } else {
           return false;
         }
       };
 
       this.show = function() {
-//        draw_();
+        //        draw_();
         for (o in objects_) {
           if (objects_[o].image.complete) {
             count++;
-            if (count == 5) draw_();
+            if (count == 7) draw_();
           } else {
             objects_[o].image.onload = function() {
               ++count;
-              if (count == 5) draw_();
+              if (count == 7) draw_();
             };
           }
         }
@@ -154,7 +190,8 @@ myth.menu.pageclasses = (function() {
         page: null,
         prePage: prePage_,
         nextPage: nextPage_,
-        home: Option({ pos: {x: 760, y: 560}, src: 'images/home.png', width:48, height:47}) 
+        home: homeButton,
+        sound: soundsButton.option()
       }; 
 
       function changePage_(m) {
@@ -209,22 +246,27 @@ myth.menu.pageclasses = (function() {
           return false;
         } else if (objects_.home.contain(p)) {
           return 'Home';
+        } else if (objects_.sound.contain(p)) {
+          soundsButton.event();
+          objects_.sound = soundsButton.option();
+          draw_();
+          return false;
         } else {
           return false;
         }
       };
 
       this.show = function() {
-//        draw_();
+        //        draw_();
         for (o in objects_) {
           if (objects_[o]) {
             if (objects_[o].image.complete) {
               count++;
-              if (count == 5) draw_();
+              if (count == 6) draw_();
             } else {
               objects_[o].image.onload = function() {
                 ++count;
-                if (count == 5) draw_();
+                if (count == 6) draw_();
               };
             }
           } else {
@@ -242,7 +284,8 @@ myth.menu.pageclasses = (function() {
         background: Option({pos: {x: 0, y:0}, src: 'images/pauseBackground.png', width:960, height:640}),
         back: Option({pos: {x: 380, y: 220}, src: 'images/pauseBack.png', width:208, height:61}),
         retry: Option({pos: {x: 380, y: 290}, src: 'images/retry.png', width:208, height:62}),
-        home: Option({pos: {x: 760, y: 560}, src: 'images/home.png', width:48, height:47})
+        home: homeButton,
+        sound: soundsButton.option()
       };
 
       function draw_() {
@@ -260,19 +303,26 @@ myth.menu.pageclasses = (function() {
           return 'retry';
         } else if (objects_.home.contain(p)) {
           return 'Home';
+        } else if (objects_.sound.contain(p)) {
+          soundsButton.event();
+          objects_.sound = soundsButton.option();
+          draw_();
+          return false;
+        } else {
+          return false;
         }
       };
 
       this.show = function() {
-//        draw_();
+        //        draw_();
         for (o in objects_) {
           if (objects_[o].image.complete) {
             ++count;
-            if (count == 3) draw_();
+            if (count == 5) draw_();
           } else {
             objects_[o].image.onload = function() {
               ++count;
-              if (count === 3) draw_();
+              if (count === 5) draw_();
             };
           }
         }
@@ -285,7 +335,8 @@ myth.menu.pageclasses = (function() {
       objects_ = {
         background: Option({pos: {x: 0, y:0}, src: 'images/pauseBackground.png', width:960, height:640}),
         retry: Option({pos: {x: 380, y: 290}, src: 'images/again.png', width:208, height:62}),
-        home: Option({pos: {x: 760, y: 560}, src: 'images/home.png', width:48, height:47})
+        home: homeButton,
+        sound: soundsButton.option()
       };
 
       function draw_() {
@@ -306,19 +357,26 @@ myth.menu.pageclasses = (function() {
           return 'retry';
         } else if (objects_.home.contain(p)) {
           return 'Home';
+        } else if (objects_.sound.contain(p)) {
+          soundsButton.event();
+          objects_.sound = soundsButton.option();
+          draw_();
+          return false;
+        } else {
+          return false;
         }
       };
 
       this.show = function() {
-//        draw_();
+        //        draw_();
         for (o in objects_) {
           if (objects_[o].image.complete) {
             count++;
-            if (count == 2) draw_();
+            if (count == 4) draw_();
           } else {
             objects_[o].image.onload = function() {
               ++count;
-              if (count === 2) draw_();
+              if (count === 4) draw_();
             };
           }
         }
@@ -330,7 +388,8 @@ myth.menu.pageclasses = (function() {
           o = null,
       objects_ = {
         background: Option({pos: {x: 0, y:0}, src: 'images/background.jpg', width:960, height:640}),
-        pause: Option({pos: {x: 760, y: 560}, src: 'images/pause.png', width:48, height:47})
+        pause: Option({pos: {x: 790, y: 580}, src: 'images/pause.png', width:48, height:47}),
+        sound: soundsButton.option()
       };
 
       function draw_() {
@@ -345,21 +404,28 @@ myth.menu.pageclasses = (function() {
       this.event = function(p) {
         if (objects_.pause.contain(p)) {
           return 'Pause';
-        } 
+        } else if (objects_.sound.contain(p)) {
+          soundsButton.event();
+          objects_.sound = soundsButton.option();
+          draw_();
+          return false;
+        } else {
+          return false;
+        }
       };
 
       this.show = function() {
-        if (count == 2) 
+        if (count == 3) 
           draw_();
         else {
           for (o in objects_) {
             if (objects_[o].image.complete) {
               count++;
-              if (count == 2) draw_();
+              if (count == 3) draw_();
             } else {
               objects_[o].image.onload = function() {
                 ++count;
-                if (count === 2) draw_();
+                if (count === 3) draw_();
               };
             }
           }

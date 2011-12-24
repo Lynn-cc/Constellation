@@ -12,7 +12,7 @@ myth.game = function(type) {
       itv = variables.interval(),
       classes = myth.base.classes,
       starsObject = new classes.Stars(STARS_NUMBER),
-      pathObject = new classes.Path(),
+      pathObject = new classes.Path(type),
       gameBackgroundPage = new myth.menu.pageclasses.GameBackground(),
       gameInterval = null,
       isTimeout = false,
@@ -72,6 +72,7 @@ myth.game = function(type) {
         score += 2;
       else
         score++;
+      myth.base.vars.sounds.hitsound.play();
     }
   }
 
@@ -102,7 +103,7 @@ myth.game = function(type) {
     passTime += itv / 1000;
     if (starsObject.remainNumber() === 0) {
       starsObject = new classes.Stars(STARS_NUMBER);
-      pathObject = new classes.Path();
+      pathObject = new classes.Path(type);
     }
     if (isTimeout) {
       stopGame();

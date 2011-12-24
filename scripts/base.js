@@ -5,6 +5,7 @@ myth.init = function() {
   myth.base.vars.canvas().width = myth.base.vars.width();
   myth.base.vars.canvas().height = myth.base.vars.height();
   myth.base.vars.canvas().addEventListener('click', myth.base.event.handler, false);
+  myth.base.vars.sounds.bgsound.play();
 };
 
 myth.base.event = (function() {
@@ -50,9 +51,13 @@ myth.base.vars = (function() {
         interval_ = 1000 / 25,
         canvas_ = document.getElementById('main'),
         ctx_ = document.getElementById('main').getContext('2d'),
-        backgroundImage_ = new Image();
+        backgroundImage_ = new Image(),
+        backgroundMusic_ = new Audio('./sounds/bgsound.wav'),
+        hitsound_ = new Audio('./sounds/hit.wav');
 
     backgroundImage_.src = 'images/background.jpg';   //change pic with different size here
+    backgroundMusic_.loop = true;
+    backgroundMusic_.preload = true;
 
     return {
       width: function() { return width_; },
@@ -60,7 +65,11 @@ myth.base.vars = (function() {
       interval: function() { return interval_; },
       canvas: function() { return canvas_; },
       ctx: function() { return ctx_; },
-      background: function() { return backgroundImage_; }
+      background: function() { return backgroundImage_; },
+      sounds: {
+        bgsound: backgroundMusic_,
+        hitsound: hitsound_
+      }
     };
 })();
 
@@ -162,8 +171,7 @@ myth.base.classes = (function() {
           height_ = this.HEIGHT * zoom_,
           pos_ = new Position(0, 0),
           type_ = 0,
-          image_ = new Image(),
-          audio_ = new Audio('./sounds/hit.wav');
+          image_ = new Image();
 
       /**
       * @initilize
@@ -180,7 +188,6 @@ myth.base.classes = (function() {
       this.width = function() { return width_; };
       this.height = function() { return height_; };
       this.pos = pos_;
-      this.play = function() { audio_.play(); };
 
       /** draw the star */
       this.draw = function() {
@@ -210,8 +217,9 @@ myth.base.classes = (function() {
       */
       this.changeStatus = function() {
         status_ = false;
-        type_ = 13;
-        image_.src = this.srcGroup[type_];
+//when successed, change the pic
+//        type_ = 13;
+//        image_.src = this.srcGroup[type_];
       };
     }
     /**
@@ -304,7 +312,6 @@ myth.base.classes = (function() {
           if (array_[i] && array_[i].status() && Position.hit(p, array_[i], false)){
             var t = array_[i].type();
             array_[i].changeStatus();
-            array_[i].play();
             return {
               pos: array_[i].pos,
               type: t
@@ -332,29 +339,51 @@ myth.base.classes = (function() {
     /**
     * Path Class
     */
-    function Path() {
+    function Path(style) {
       var i = 0,
           points_ = [],
-          last_ = new Position(0, 0);
+          last_ = new Position(0, 0),
+          style_ = style;
+
+      function setStyle() {
+        switch (style_) {
+         case 'wind':
+          c.strokeStyle = '#fff';
+          c.shadowColor = '#3c6';
+          break;
+         case 'fire':
+          c.strokeStyle = '#fff';
+          c.shadowColor = '#933';
+          break;
+         case 'earth':
+          c.strokeStyle = '#fff';
+          c.shadowColor = '#966';
+          break;
+         case 'water':
+          c.strokeStyle = '#fff';
+          c.shadowColor = '#39c';
+          break;
+         default:
+          c.strokeStyle = '#fff';
+          c.shadowColor = style_.color;
+          break;
+        }
+
+      }
+
 
       /** add a point */
       this.add = function(p) {
         points_[points_.length] = p;
       };
 
-      //    /** modify the last point */
-      //    this.last = function(p) {
-      //      last_ = p;
-      //    };
-
       /** draw the path and the last point is the mouse position */
       this.draw = function() {
         if (points_.length > 1) {
           c.save();
-          c.strokeStyle = 'blue';
-          c.lineWidth = 3;
-          c.shadowBlur = 10;
-          c.shadowColor = 'white';
+          c.lineWidth = 4;
+          c.shadowBlur = 8;
+          setStyle();
           c.beginPath();
           c.moveTo(points_[0].x(), points_[0].y());
           for (i = 1; i < points_.length; ++i) {
