@@ -4,46 +4,10 @@ myth.base = {};
 myth.init = function() {
   myth.base.vars.canvas().width = myth.base.vars.width();
   myth.base.vars.canvas().height = myth.base.vars.height();
-  myth.base.vars.canvas().addEventListener('click', myth.base.event.handler, false);
+  myth.base.vars.canvas().addEventListener('click', myth.base.event.clickEvent.handler, false);
+  myth.base.vars.canvas().addEventListener('mousemove', myth.base.event.hoverEvent.handler, false);
   myth.base.vars.sounds.bgsound.play();
 };
-
-myth.base.event = (function() {
-    var pageObject_ = null,
-        option_ = '',
-        param_ = null;
-
-    function changeHandler(o, opt_param) {
-      pageObject_ = o;
-      param_ = opt_param;
-    }
-
-    function handler(e) {
-      option_ = pageObject_.event(new myth.base.classes.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
-      if (option_) {
-        if (myth.menu.pageclasses[option_]) {
-          if (option_ === 'Pause') param_.stop();
-          if (option_ === 'Home') param_ = null;
-          pageObject_ = new myth.menu.pageclasses[option_];
-          pageObject_.show();
-        } else if (['wind', 'fire', 'water', 'earth'].join('').search(option_) != -1) {
-          pageObject_ = null;
-          myth.game(option_);
-        } else if (option_ === 'back') {
-          param_.start();
-        } else if (option_ === 'retry') {
-          option = param_.gametype;
-          myth.game(option);
-        }
-      }
-    }
-
-    return {
-      handler:handler,
-      changeHandler:changeHandler
-    };
-})();
-
 
 myth.base.vars = (function() {
     var width_ = null || 960,  //to do: get the screen resolution of mobile
@@ -76,9 +40,9 @@ myth.base.vars = (function() {
 myth.base.classes = (function() {
     var variables = myth.base.vars,
         c = variables.ctx(),
-        interval = variables.interval(),
         screenWidth = variables.width(),
         screenHeight = variables.height();
+
     /** 
     * private random method
     * @param {number} 
@@ -204,7 +168,7 @@ myth.base.classes = (function() {
       */
       this.nextlife = function() {
         if (life_ > 0) {
-          life_ -= interval / 1000;
+          life_ -= variables.interval() / 1000;
           return true;
         } else {
           return false;
@@ -217,9 +181,9 @@ myth.base.classes = (function() {
       */
       this.changeStatus = function() {
         status_ = false;
-//when successed, change the pic
-//        type_ = 13;
-//        image_.src = this.srcGroup[type_];
+        //when successed, change the pic
+        //        type_ = 13;
+        //        image_.src = this.srcGroup[type_];
       };
     }
     /**
@@ -305,7 +269,9 @@ myth.base.classes = (function() {
 
       /** 
       * if the p is hit some star, change the status
-      * @return {Position} if p is hit some star and change status, return the star's position
+      * @return {Object} if some star is being hit,
+      *                  return some attributes and methods,
+      *                  else return false
       */
       this.isHit = function(p) {
         for (i = 0; i < array_.length; ++i) {
@@ -314,7 +280,10 @@ myth.base.classes = (function() {
             array_[i].changeStatus();
             return {
               pos: array_[i].pos,
-              type: t
+              type: t,
+              clear: function() {
+                array_[i] = null;
+              }
             };
           }
         }
@@ -398,10 +367,70 @@ myth.base.classes = (function() {
       };
     }
 
+    /**
+    * 
+    */
+
     return {
       Stars: StarsGroup,
       Path: Path,
       Position: Position
     };
 })();
+
+
+myth.base.event = {
+  clickEvent: (function() {
+      var pageObject_ = null,
+          option_ = '',
+          param_ = null;
+
+      function changeHandler(o, opt_param) {
+        pageObject_ = o;
+        param_ = opt_param;
+      }
+
+      function handler(e) {
+        option_ = pageObject_.event(new myth.base.classes.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
+        if (option_) {
+          if (myth.menu.pageclasses[option_]) {
+            if (option_ === 'Pause') param_.stop();
+            if (option_ === 'Home') param_ = null;
+            pageObject_ = new myth.menu.pageclasses[option_];
+            pageObject_.show();
+          } else if (['wind', 'fire', 'water', 'earth'].join('').search(option_) != -1) {
+            pageObject_ = null;
+            myth.game(option_);
+          } else if (option_ === 'back') {
+            param_.start();
+          } else if (option_ === 'retry') {
+            option = param_.gametype;
+            myth.game(option);
+          }
+        }
+      }
+
+      return {
+        handler:handler,
+        changeHandler:changeHandler
+      };
+  })(),
+
+  hoverEvent: (function() {
+      var fn_ = null;
+      function handler(e) {
+        if (fn_)
+          fn_(new myth.base.classes.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
+      } 
+      function changeHandler(fn) {
+        fn_ = fn;
+      }
+
+      return {
+        handler:handler,
+        changeHandler:changeHandler
+      };
+  })()
+};
+
 

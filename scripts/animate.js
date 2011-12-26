@@ -46,30 +46,27 @@ myth.game = function(type) {
     c.restore();
   }
 
-  /** backgroundDraw */
-  function backgroundDraw() {
-    gameBackgroundPage.show();
-  }
-
   /**
   * Handlers
   */
-
-  function addClickHandler() {
-    myth.base.event.changeHandler(gameBackgroundPage, {
-        start: startGame,
-        stop: stopGame,
-        gametype: type
-    });
-  }
-
-  function mousemoveHandler(e) {
-    var o = starsObject.isHit(new classes.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
+  function mousemoveHandler(p) {
+    var o = starsObject.isHit(p);
     if (o) {
-      pathObject.add(o.pos);
+      if (pathObject)
+        pathObject.add(o.pos);
+      else
+        o.clear();
+
       //判断是不是特别的星座星星
-      if (o.type !== 0)
+      if (o.type !== 0 && pathObject) {
         score += 2;
+        starsObject = new classes.Stars(STARS_NUMBER * 3);
+        pathObject = null;
+        setTimeout(function() {
+            starsObject = new classes.Stars(STARS_NUMBER);
+            pathObject = new classes.Path(type);
+          }, 1500);
+      }
       else
         score++;
       myth.base.vars.sounds.hitsound.play();
@@ -81,22 +78,28 @@ myth.game = function(type) {
   function startGame() {
     isPause = false;
     gameInterval = setInterval(gameloop, itv);
-    cvs.addEventListener('mousemove',mousemoveHandler, false);
-    addClickHandler();
+    myth.base.event.hoverEvent.changeHandler(mousemoveHandler);
+    myth.base.event.clickEvent.changeHandler(gameBackgroundPage, {
+        start: startGame,
+        stop: stopGame,
+        gametype: type
+    });
   }
 
   function stopGame() {
     isPause = true;
     clearInterval(gameInterval);
-    cvs.removeEventListener('mousemove',mousemoveHandler, false);
+    myth.base.event.hoverEvent.changeHandler(null);
   }
 
   /**
   * gameloop 
   */
   function gameloop() {
-    backgroundDraw();
-    pathObject.draw();
+    c.clearRect(0, 0, screenWidth, screenHeight);
+    gameBackgroundPage.show();
+    if (pathObject)
+      pathObject.draw();
     starsObject.draw();
     timeDraw();
     scoreDraw();
@@ -107,7 +110,7 @@ myth.game = function(type) {
     }
     if (isTimeout) {
       stopGame();
-      myth.menu.show('Gameover', {score: score, gametype: type});
+      myth.menu.over({score: score, gametype: type});
     }
   }
 

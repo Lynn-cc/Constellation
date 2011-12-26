@@ -415,17 +415,16 @@ myth.menu.pageclasses = (function() {
       };
 
       this.show = function() {
-        if (count == 3) 
-          draw_();
+        if (count == 3) draw_();
         else {
           for (o in objects_) {
             if (objects_[o].image.complete) {
-              count++;
+              ++count;
               if (count == 3) draw_();
             } else {
               objects_[o].image.onload = function() {
                 ++count;
-                if (count === 3) draw_();
+                if (count == 3) draw_();
               };
             }
           }
@@ -444,16 +443,14 @@ myth.menu.pageclasses = (function() {
 
 })();
 
-myth.menu.show = function(type, opt_param) {
+myth.menu.over = function(opt_param) {
   var pageclasses = myth.menu.pageclasses,
       option_ = '',
       page_ = null;
 
-  if (type === 'Gameover') 
-    page_ = new pageclasses.Gameover(opt_param.score);
-
+  page_ = new pageclasses.Gameover(opt_param.score);
   page_.show();
-  myth.base.event.changeHandler(page_, opt_param);
+  myth.base.event.clickEvent.changeHandler(page_, opt_param);
 };
 
 
@@ -464,5 +461,5 @@ myth.menu.main = function() {
 
   page_ = new pageclasses.Home();
   page_.show();
-  myth.base.event.changeHandler(page_);
+  myth.base.event.clickEvent.changeHandler(page_);
 };
