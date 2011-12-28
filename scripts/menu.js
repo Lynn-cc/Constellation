@@ -1,13 +1,16 @@
 myth.menu = {};
 myth.menu.pageclasses = (function() {
     var variables = myth.base.vars,
+        classes = myth.base.classes,
         cvs = variables.canvas(),
         c = variables.ctx(),
+        srcpos = variables.srcpos(),
         screenWidth = variables.width(),
         screenHeight = variables.height(),
-        classes = myth.base.classes,
         soundsButton = new SoundsControl(),
-        homeButton = Option({ pos: {x: 790, y: 580}, src: 'images/home.png', width:48, height:47});
+        backgroundObject = Option(srcpos.background, {x: 0, y: 0}),
+        backObject = Option(srcpos.back, {x: 790, y: 580}),
+        homeObject = Option(srcpos.home, {x: 790, y: 580});
 
     /**
     * @param o{object}:
@@ -15,30 +18,36 @@ myth.menu.pageclasses = (function() {
     * @return {object}:
     * {pos{Position}, image{Image}, width{Number}, height{Number}, contain{Function}}
     */
-    function Option(o) {
-      var pos_ = new classes.Position(o.pos.x, o.pos.y),
-          image_ = new Image(),
+    function Option(o, dp) {
+      var dpos_ = new classes.Position(dp.x, dp.y),
+          spos_ = new classes.Position(o.x, o.y),
           w_ = o.width,
-          h_ = o.height;
+          h_ = o.height,
+          image_ = new Image();
 
-      image_.src = o.src;
+      image_.src = variables.src();
       image_.width = w_;
       image_.height = h_;
       return {
-        pos: pos_,
+        dpos: dpos_,
+        spos: spos_,
         image: image_,
         width: function () { return w_; },
         height: function () { return h_; },
         contain: function(p) {
-          return classes.Position.hit(p, this, true);
+          return classes.Position.hit(p, {
+              pos: this.dpos, 
+              width: this.width,
+              height: this.height
+            }, true);
         }
       };
     }
 
     function SoundsControl() {
-      var onOption_ = Option({ pos: {x: 870, y: 580}, src: 'images/on.png', width: 73, height: 74}),
-          offOption_ = Option({ pos: {x: 870, y: 580}, src: 'images/off.png', width: 73, height: 74}),
-          soundsObjects_ = myth.base.vars.sounds,
+      var onOption_ = Option(srcpos.on, {x: 870, y: 580}),
+          offOption_ = Option(srcpos.off, {x: 870, y: 580}),
+          soundsObjects_ = variables.sounds,
           current_ = onOption_;
 
       function setsounds(value) {
@@ -60,21 +69,22 @@ myth.menu.pageclasses = (function() {
     //Pages Classes: Home/Start/Help/Pause/Gameover
     function Home() {
       var objects_ = {
-        background: Option({ pos: {x: 0, y: 0}, src: 'images/background.jpg', width: 960, height: 640}),
-        logo: Option({ pos: {x: 210, y: 30}, src: 'images/logo.png', width: 553, height: 186}),
-        start: Option({ pos: {x: 350, y: 250}, src: 'images/start.png', width: 270, height: 81}),
-        help: Option({ pos: {x: 350, y: 360}, src: 'images/help.png', width: 270, height: 81}),
+        background: backgroundObject,
+        logo: Option(srcpos.logo1, {x: 210, y: 30}),
+        start: Option(srcpos.start, {x: 341, y: 240}),
+        help: Option(srcpos.help, {x: 341, y: 360}),
         sound: soundsButton.option()
       },
-      o = null, //历遍临时变量
-      count = 0; //图片加载计数器
+      o = null; //历遍临时变量
 
 
       function draw_() {
         c.save();
         c.clearRect(0, 0, screenWidth, screenHeight);
         for (o in objects_) {
-          c.drawImage(objects_[o].image, objects_[o].pos.x(), objects_[o].pos.y());
+          c.drawImage(objects_[o].image,
+            objects_[o].spos.x(), objects_[o].spos.y(), objects_[o].width(), objects_[o].height(),
+            objects_[o].dpos.x(), objects_[o].dpos.y(), objects_[o].width(), objects_[o].height());
         }
         c.restore();
       }
@@ -95,39 +105,30 @@ myth.menu.pageclasses = (function() {
       };
 
       this.show = function() {
-        //        draw_();
-        for (o in objects_) {
-          if (objects_[o].image.complete) {
-            ++count;
-            if (count == 5) draw_();
-          } else {
-            objects_[o].image.onload = function() {
-              ++count;
-              if (count == 5) draw_();
-            };
-          }
-        }
+        draw_();
       };
     }
 
     function Start() {
       var objects_ = {
-        background: Option({ pos: {x: 0, y: 0}, src: 'images/startBackground.jpg', width: 960, height: 640}),
-        wind : Option({ pos: {x: 280, y: 135}, src: 'images/wind.png', width: 385, height: 95}),
-        water : Option({ pos: {x: 280, y: 245}, src: 'images/water.png', width: 385, height: 95}),
-        earth : Option({ pos: {x: 280, y: 355}, src: 'images/earth.png', width: 285, height: 95}),
-        fire : Option({ pos: {x: 280, y: 465}, src: 'images/fire.png', width: 385, height: 95}),
-        home: homeButton,
-        sound: soundsButton.option()
+        background: backgroundObject,
+        logo: Option(srcpos.logo2, {x: 265, y: 35}),
+        wind: Option(srcpos.wind, {x: 300, y: 200}),
+        water: Option(srcpos.water, {x: 300, y: 300}),
+        earth: Option(srcpos.earth, {x: 300, y: 400}),
+        fire: Option(srcpos.fire, {x: 300, y: 500}),
+        sound: soundsButton.option(),
+        back: backObject
       },
-      o = null,
-      count = 0;
+      o = null;
 
       function draw_() {
         c.save();
         c.clearRect(0, 0, screenWidth, screenHeight);
         for (o in objects_) {
-          c.drawImage(objects_[o].image, objects_[o].pos.x(), objects_[o].pos.y());
+          c.drawImage(objects_[o].image,
+            objects_[o].spos.x(), objects_[o].spos.y(), objects_[o].width(), objects_[o].height(),
+            objects_[o].dpos.x(), objects_[o].dpos.y(), objects_[o].width(), objects_[o].height());
         }
         c.restore();
       }
@@ -141,7 +142,7 @@ myth.menu.pageclasses = (function() {
           return 'earth';
         } else if (objects_.fire.contain(p)) {
           return 'fire';
-        } else if (objects_.home.contain(p)) {
+        } else if (objects_.back.contain(p)) {
           return 'Home';
         } else if (objects_.sound.contain(p)) {
           soundsButton.event();
@@ -154,18 +155,7 @@ myth.menu.pageclasses = (function() {
       };
 
       this.show = function() {
-        //        draw_();
-        for (o in objects_) {
-          if (objects_[o].image.complete) {
-            count++;
-            if (count == 7) draw_();
-          } else {
-            objects_[o].image.onload = function() {
-              ++count;
-              if (count == 7) draw_();
-            };
-          }
-        }
+        draw_();
       };
     }
 
@@ -173,24 +163,19 @@ myth.menu.pageclasses = (function() {
       var pageNumber_ = 3, //总页数
           n = 0,
           o = null,
-          count = 0,
-      pageOption_ = {
-        pos : {x: 310, y: 235},
-        width : 375,
-        height : 180
-      },
+          //      pageOption_ = { pos : {x: 310, y: 235}, width : 375, height : 180 },
       pagePic_ = [],
 
       //方便动态增加到object
-      nextPage_ = Option({ pos: {x: 660, y: 460}, src: 'images/nextPage.png', width: 84, height: 29}),
-      prePage_ = Option({ pos: {x: 200, y: 470}, src: 'images/prePage.png', width: 82, height: 33}),
+      nextPage_ = Option(srcpos.nextPage, {x: 660, y: 460}),
+      prePage_ = Option(srcpos.prePage, {x: 200, y: 470}),
 
       objects_ = {
-        background: Option({ pos: {x: 0, y: 0}, src: 'images/helpBackground.jpg', width: 960, height: 640}),
-        page: null,
+        background: backgroundObject, 
+        //        page: null,
         prePage: prePage_,
         nextPage: nextPage_,
-        home: homeButton,
+        back: backObject,
         sound: soundsButton.option()
       }; 
 
@@ -228,7 +213,9 @@ myth.menu.pageclasses = (function() {
         c.clearRect(0, 0, screenWidth, screenHeight);
         for (o in objects_) {
           if (objects_[o])
-            c.drawImage(objects_[o].image, objects_[o].pos.x(), objects_[o].pos.y());
+          c.drawImage(objects_[o].image,
+            objects_[o].spos.x(), objects_[o].spos.y(), objects_[o].width(), objects_[o].height(),
+            objects_[o].dpos.x(), objects_[o].dpos.y(), objects_[o].width(), objects_[o].height());
         }
         c.restore();
       }
@@ -244,7 +231,7 @@ myth.menu.pageclasses = (function() {
           changePage_(n);
           draw_();
           return false;
-        } else if (objects_.home.contain(p)) {
+        } else if (objects_.back.contain(p)) {
           return 'Home';
         } else if (objects_.sound.contain(p)) {
           soundsButton.event();
@@ -257,47 +244,34 @@ myth.menu.pageclasses = (function() {
       };
 
       this.show = function() {
-        //        draw_();
-        for (o in objects_) {
-          if (objects_[o]) {
-            if (objects_[o].image.complete) {
-              count++;
-              if (count == 6) draw_();
-            } else {
-              objects_[o].image.onload = function() {
-                ++count;
-                if (count == 6) draw_();
-              };
-            }
-          } else {
-            count++;
-          }
-        }
+        draw_();
       };
 
     }
 
     function Pause() {
-      var count = 0,
-          o = null,
+      var o = null,
       objects_ = {
-        background: Option({pos: {x: 0, y:0}, src: 'images/pauseBackground.png', width:960, height:640}),
-        back: Option({pos: {x: 380, y: 220}, src: 'images/pauseBack.png', width:208, height:61}),
-        retry: Option({pos: {x: 380, y: 290}, src: 'images/retry.png', width:208, height:62}),
-        home: homeButton,
+        background: backgroundObject,
+        shade: Option(srcpos.pauseShade, {x: 200, y:190}),
+        backGame: Option(srcpos.backGame, {x: 380, y: 220}),
+        retry: Option(srcpos.retry, {x: 380, y: 290}),
+        home: homeObject,
         sound: soundsButton.option()
       };
 
       function draw_() {
         c.save();
         for (o in objects_) {
-          c.drawImage(objects_[o].image, objects_[o].pos.x(), objects_[o].pos.y());
+          c.drawImage(objects_[o].image,
+            objects_[o].spos.x(), objects_[o].spos.y(), objects_[o].width(), objects_[o].height(),
+            objects_[o].dpos.x(), objects_[o].dpos.y(), objects_[o].width(), objects_[o].height());
         }
         c.restore();
       }
 
       this.event = function(p) {
-        if (objects_.back.contain(p)) {
+        if (objects_.backGame.contain(p)) {
           return 'back';
         } else if (objects_.retry.contain(p)) {
           return 'retry';
@@ -314,35 +288,26 @@ myth.menu.pageclasses = (function() {
       };
 
       this.show = function() {
-        //        draw_();
-        for (o in objects_) {
-          if (objects_[o].image.complete) {
-            ++count;
-            if (count == 5) draw_();
-          } else {
-            objects_[o].image.onload = function() {
-              ++count;
-              if (count === 5) draw_();
-            };
-          }
-        }
+        draw_();
       };
     }
 
     function Gameover(score) {
-      var count = 0,
-          o = null,
+      var o = null,
       objects_ = {
-        background: Option({pos: {x: 0, y:0}, src: 'images/pauseBackground.png', width:960, height:640}),
-        retry: Option({pos: {x: 380, y: 290}, src: 'images/again.png', width:208, height:62}),
-        home: homeButton,
-        sound: soundsButton.option()
+        background: backgroundObject,
+        sound: soundsButton.option(),
+        shade: Option(srcpos.overShade, {x: 210, y: 170}),
+        again: Option(srcpos.again, {x: 380, y: 290}),
+        home: homeObject
       };
 
       function draw_() {
         c.save();
         for (o in objects_) {
-          c.drawImage(objects_[o].image, objects_[o].pos.x(), objects_[o].pos.y());
+          c.drawImage(objects_[o].image,
+            objects_[o].spos.x(), objects_[o].spos.y(), objects_[o].width(), objects_[o].height(),
+            objects_[o].dpos.x(), objects_[o].dpos.y(), objects_[o].width(), objects_[o].height());
         }
         c.fillStyle = 'white';
         c.font = '60px Arial';
@@ -353,7 +318,7 @@ myth.menu.pageclasses = (function() {
       }
 
       this.event = function(p) {
-        if (objects_.retry.contain(p)) {
+        if (objects_.again.contain(p)) {
           return 'retry';
         } else if (objects_.home.contain(p)) {
           return 'Home';
@@ -368,27 +333,15 @@ myth.menu.pageclasses = (function() {
       };
 
       this.show = function() {
-        //        draw_();
-        for (o in objects_) {
-          if (objects_[o].image.complete) {
-            count++;
-            if (count == 4) draw_();
-          } else {
-            objects_[o].image.onload = function() {
-              ++count;
-              if (count === 4) draw_();
-            };
-          }
-        }
+        draw_();
       };
     }
 
     function GameBackground() {
-      var count = 0,
-          o = null,
+      var o = null,
       objects_ = {
-        background: Option({pos: {x: 0, y:0}, src: 'images/background.jpg', width:960, height:640}),
-        pause: Option({pos: {x: 790, y: 580}, src: 'images/pause.png', width:48, height:47}),
+        background: backgroundObject,
+        pause: Option(srcpos.pause, {x: 790, y: 580}),
         sound: soundsButton.option()
       };
 
@@ -396,7 +349,9 @@ myth.menu.pageclasses = (function() {
         c.save();
         c.clearRect(0, 0, screenWidth, screenHeight);
         for (o in objects_) {
-          c.drawImage(objects_[o].image, objects_[o].pos.x(), objects_[o].pos.y());
+          c.drawImage(objects_[o].image,
+            objects_[o].spos.x(), objects_[o].spos.y(), objects_[o].width(), objects_[o].height(),
+            objects_[o].dpos.x(), objects_[o].dpos.y(), objects_[o].width(), objects_[o].height());
         }
         c.restore();
       }
@@ -415,20 +370,7 @@ myth.menu.pageclasses = (function() {
       };
 
       this.show = function() {
-        if (count == 3) draw_();
-        else {
-          for (o in objects_) {
-            if (objects_[o].image.complete) {
-              ++count;
-              if (count == 3) draw_();
-            } else {
-              objects_[o].image.onload = function() {
-                ++count;
-                if (count == 3) draw_();
-              };
-            }
-          }
-        }
+        draw_();
       };
     }
 
@@ -453,13 +395,11 @@ myth.menu.over = function(opt_param) {
   myth.base.event.clickEvent.changeHandler(page_, opt_param);
 };
 
-
 myth.menu.main = function() { 
-  var pageclasses = myth.menu.pageclasses,
-      page_ = null,
+  var page_ = null,
       option_ = '';
 
-  page_ = new pageclasses.Home();
+  page_ = new myth.menu.pageclasses.Home();
   page_.show();
   myth.base.event.clickEvent.changeHandler(page_);
 };

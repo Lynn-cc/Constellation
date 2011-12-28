@@ -8,7 +8,6 @@ myth.game = function(type) {
       cvs = variables.canvas(),
       screenWidth = variables.width(),
       screenHeight = variables.height(),
-      bg = variables.background(),
       itv = variables.interval(),
       classes = myth.base.classes,
       starsObject = new classes.Stars(STARS_NUMBER),
@@ -54,18 +53,18 @@ myth.game = function(type) {
     if (o) {
       if (pathObject)
         pathObject.add(o.pos);
-      else
-        o.clear();
+ //     else
+ //       o.clear();
 
       //判断是不是特别的星座星星
       if (o.type !== 0 && pathObject) {
         score += 2;
-        starsObject = new classes.Stars(STARS_NUMBER * 3);
-        pathObject = null;
-        setTimeout(function() {
-            starsObject = new classes.Stars(STARS_NUMBER);
-            pathObject = new classes.Path(type);
-          }, 1500);
+ //      starsObject = new classes.Stars(STARS_NUMBER * 3);
+ //       pathObject = null;
+ //       setTimeout(function() {
+ //           starsObject = new classes.Stars(STARS_NUMBER);
+ //           pathObject = new classes.Path(type);
+ //         }, 1500);
       }
       else
         score++;
@@ -98,7 +97,7 @@ myth.game = function(type) {
   function gameloop() {
     c.clearRect(0, 0, screenWidth, screenHeight);
     gameBackgroundPage.show();
-    if (pathObject)
+ //   if (pathObject)
       pathObject.draw();
     starsObject.draw();
     timeDraw();

@@ -15,11 +15,43 @@ myth.base.vars = (function() {
         interval_ = 1000 / 25,
         canvas_ = document.getElementById('main'),
         ctx_ = document.getElementById('main').getContext('2d'),
-        backgroundImage_ = new Image(),
         backgroundMusic_ = new Audio('./sounds/bgsound.wav'),
-        hitsound_ = new Audio('./sounds/hit.wav');
+        hitsound_ = new Audio('./sounds/hit.wav'),
+        src_ = 'images/pic.png';
+    var srcPos_ = {
+      stars: function(i) {
+        return {
+          x: i * 140,
+          y: 0,
+          width: 134, 
+          height: 131
+        }; 
+      },
+      logo1: {x: 0, y: 150, width: 553, height: 186},
+      logo2: {x: 560, y: 150, width: 401, height: 136},
+      logo3: {x: 980, y: 150, width: 300, height: 103},
+      backGame: {x: 1400, y:150, width: 208, height: 61},
+      retry: {x: 1680, y: 150, width: 208, height: 62},
+      again: {x: 1400, y: 250, width: 207, height: 61},
+      prePage: {x: 1680, y: 250, width: 69, height: 23},
+      nextPage: {x: 1820, y: 250, width: 70, height: 22},
+      back: {x: 1920, y: 0, width: 48, height: 47},
+      home: {x: 1920, y: 60, width: 47, height: 49},
+      pause: {x: 1920, y: 120, width: 45, height: 47},
+      on: {x: 1920, y: 180, width: 61, height: 51},
+      off: {x: 1920, y: 240, width: 61, height: 51},
+      water: {x: 0, y: 400, width: 385, height: 93},
+      fire: {x: 420, y: 400, width: 389, height: 94},
+      earth: {x: 840, y: 400, width:383, height: 93},
+      wind: {x: 1260, y: 400, width: 382, height: 93},
+      start: {x: 1680, y: 300, width: 270, height: 81},
+      help: {x: 1680, y: 400, width: 270, height: 81},
+      background: {x: 0, y: 800, width: 960, height: 640},
+      helpbg: {x: 980, y: 800, width: 779, height: 447},
+      pauseShade: {x: 980, y: 1260, width: 516, height: 234},
+      overShade: {x: 1540, y: 1260, width: 512, height: 289}
+    };
 
-    backgroundImage_.src = 'images/background.jpg';   //change pic with different size here
     backgroundMusic_.loop = true;
     backgroundMusic_.preload = true;
 
@@ -29,11 +61,9 @@ myth.base.vars = (function() {
       interval: function() { return interval_; },
       canvas: function() { return canvas_; },
       ctx: function() { return ctx_; },
-      background: function() { return backgroundImage_; },
-      sounds: {
-        bgsound: backgroundMusic_,
-        hitsound: hitsound_
-      }
+      sounds: { bgsound: backgroundMusic_, hitsound: hitsound_ },
+      srcpos: function() { return srcPos_; },
+      src: function() { return src_; }
     };
 })();
 
@@ -135,7 +165,9 @@ myth.base.classes = (function() {
           height_ = this.HEIGHT * zoom_,
           pos_ = new Position(0, 0),
           type_ = 0,
-          image_ = new Image();
+          image_ = new Image(),
+          srcx_ = 0,
+          srcy_ = 0;
 
       /**
       * @initilize
@@ -145,7 +177,9 @@ myth.base.classes = (function() {
       } else {
         type_ = 0;
       }
-      image_.src = this.srcGroup[type_];
+      image_.src = myth.base.vars.src();
+      srcx_ = myth.base.vars.srcpos().stars(type_).x;
+      srcy_ = myth.base.vars.srcpos().stars(type_).y;
 
       this.type = function() { return type_; };
       this.status = function() { return status_; };
@@ -158,7 +192,7 @@ myth.base.classes = (function() {
         c.save();
         c.translate(pos_.x(), pos_.y());
         c.rotate(angle_);
-        c.drawImage(image_, -width_ / 2, -height_ / 2, width_, height_);
+        c.drawImage(image_, srcx_, srcy_, this.WIDTH, this.HEIGHT, -width_ / 2, -height_ / 2, width_, height_);
         c.restore();
       };
 
@@ -181,9 +215,6 @@ myth.base.classes = (function() {
       */
       this.changeStatus = function() {
         status_ = false;
-        //when successed, change the pic
-        //        type_ = 13;
-        //        image_.src = this.srcGroup[type_];
       };
     }
     /**
@@ -192,36 +223,27 @@ myth.base.classes = (function() {
     * @const {Number} WIDTH/HEIGHT: the origin size of the picture
     */
     Star.prototype.DEFAULT_LIFE = 3;
-    Star.prototype.WIDTH = 256;
-    Star.prototype.HEIGHT = 256;
-    /**
-    * Every stars type src
-    * 0 refers to the origin star
-    * 1-12 refers to the constellation star
-    * 13 refers to the win star
-    */
-    Star.prototype.srcGroup = [];
-    for (var i = 0; i < 14; ++i) {
-      Star.prototype.srcGroup[i] = 'images/constellation' + i + '.png';
-    }
+    Star.prototype.WIDTH = myth.base.vars.srcpos().stars(0).width;
+    Star.prototype.HEIGHT = myth.base.vars.srcpos().stars(0).height;
 
     /**
     * @static {Number} MINZOOM/MAXZOOM: the zoom range
     */
-    Star.MINZOOM = 0.1;
-    Star.MAXZOOM = 0.3;
+    Star.MINZOOM = 0.3;
+    Star.MAXZOOM = 0.5;
 
     /** 
     * StarsGroup Class 
     * @param {number} n: the number of the stars to be initilized
     */
-    function StarsGroup(n) {
+    function StarsGroup(n, type) {
       var lifeTime_ = 3, 
           array_ = [], 
           i = 0, 
           j = 0,
           create = null,
-          swap = []; 
+          swap = [],
+          type_ = type; //to do: every type has three random pic
 
       /**
       * method to create a new star
@@ -230,9 +252,9 @@ myth.base.classes = (function() {
       */
       function create_() {
         var constellationStar = (function() {
-            var n = random(0, 1, 3);
-            if (n > 0.904) {
-              return parseInt((n * 1000) % 12 + 1, 10);
+            var n = random(0, 1000);
+            if (n > 976) {
+              return n % 12 + 1;
             } else {
               return 0;
             }
