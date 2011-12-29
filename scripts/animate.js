@@ -1,7 +1,7 @@
 //Game entry
 myth.game = function(type) {
   var STARS_NUMBER = 20,
-      FULL_TIME = 10;
+      FULL_TIME = 10 * 1000;
 
   var variables = myth.base.vars,
       c = variables.ctx(),
@@ -12,6 +12,7 @@ myth.game = function(type) {
       classes = myth.base.classes,
       starsObject = new classes.Stars(STARS_NUMBER),
       pathObject = new classes.Path(type),
+      scoreObject = new classes.Score(type),
       gameBackgroundPage = new myth.menu.pageclasses.GameBackground(),
       gameInterval = null,
       isTimeout = false,
@@ -32,16 +33,7 @@ myth.game = function(type) {
       passTime = FULL_TIME;
       isTimeout = true;
     }
-    c.fillText('时间:' + Math.ceil(FULL_TIME - passTime).toString(), screenWidth -120, 30);
-    c.restore();
-  }
-
-  /** scoreDraw */
-  function scoreDraw(){
-    c.save();
-    c.fillStyle = 'yellow';
-    c.font = '30px Arial';
-    c.fillText('积分:' + score.toString(), 10, 30); 
+    c.fillText('时间:' + ((FULL_TIME - passTime)/1000).toString(), screenWidth -120, 30);
     c.restore();
   }
 
@@ -51,21 +43,11 @@ myth.game = function(type) {
   function mousemoveHandler(p) {
     var o = starsObject.isHit(p);
     if (o) {
-      if (pathObject)
-        pathObject.add(o.pos);
- //     else
- //       o.clear();
+      pathObject.add(o.pos);
 
       //判断是不是特别的星座星星
-      if (o.type !== 0 && pathObject) {
+      if (o.type !== 0 && pathObject)
         score += 2;
- //      starsObject = new classes.Stars(STARS_NUMBER * 3);
- //       pathObject = null;
- //       setTimeout(function() {
- //           starsObject = new classes.Stars(STARS_NUMBER);
- //           pathObject = new classes.Path(type);
- //         }, 1500);
-      }
       else
         score++;
       myth.base.vars.sounds.hitsound.play();
@@ -97,12 +79,11 @@ myth.game = function(type) {
   function gameloop() {
     c.clearRect(0, 0, screenWidth, screenHeight);
     gameBackgroundPage.show();
- //   if (pathObject)
-      pathObject.draw();
+    pathObject.draw();
+    scoreObject.draw(score);
     starsObject.draw();
     timeDraw();
-    scoreDraw();
-    passTime += itv / 1000;
+    passTime += itv;
     if (starsObject.remainNumber() === 0) {
       starsObject = new classes.Stars(STARS_NUMBER);
       pathObject = new classes.Path(type);

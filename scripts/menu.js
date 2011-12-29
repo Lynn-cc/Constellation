@@ -8,7 +8,6 @@ myth.menu.pageclasses = (function() {
         screenWidth = variables.width(),
         screenHeight = variables.height(),
         soundsButton = new SoundsControl(),
-        backgroundObject = Option(srcpos.background, {x: 0, y: 0}),
         backObject = Option(srcpos.back, {x: 790, y: 580}),
         homeObject = Option(srcpos.home, {x: 790, y: 580});
 
@@ -69,7 +68,6 @@ myth.menu.pageclasses = (function() {
     //Pages Classes: Home/Start/Help/Pause/Gameover
     function Home() {
       var objects_ = {
-        background: backgroundObject,
         logo: Option(srcpos.logo1, {x: 210, y: 30}),
         start: Option(srcpos.start, {x: 341, y: 240}),
         help: Option(srcpos.help, {x: 341, y: 360}),
@@ -111,7 +109,6 @@ myth.menu.pageclasses = (function() {
 
     function Start() {
       var objects_ = {
-        background: backgroundObject,
         logo: Option(srcpos.logo2, {x: 265, y: 35}),
         wind: Option(srcpos.wind, {x: 300, y: 200}),
         water: Option(srcpos.water, {x: 300, y: 300}),
@@ -161,18 +158,16 @@ myth.menu.pageclasses = (function() {
 
     function Help() {
       var pageNumber_ = 3, //总页数
-          n = 0,
+          n = 1,
           o = null,
-          //      pageOption_ = { pos : {x: 310, y: 235}, width : 375, height : 180 },
-      pagePic_ = [],
-
-      //方便动态增加到object
-      nextPage_ = Option(srcpos.nextPage, {x: 660, y: 460}),
-      prePage_ = Option(srcpos.prePage, {x: 200, y: 470}),
+          pageObjects_ = [],
+          nextPage_ = Option(srcpos.nextPage, {x: 675, y: 480}),
+          prePage_ = Option(srcpos.prePage, {x: 250, y: 490}),
 
       objects_ = {
-        background: backgroundObject, 
-        //        page: null,
+        logo:Option(srcpos.logo3, {x: 355, y: 20}),
+        helpBackground:Option(srcpos.helpBackground, {x: 110, y: 140}),
+        page: null,
         prePage: prePage_,
         nextPage: nextPage_,
         back: backObject,
@@ -180,32 +175,27 @@ myth.menu.pageclasses = (function() {
       }; 
 
       function changePage_(m) {
-        if (n === 0) {
+        if (n === 1) {
           objects_.prePage = null;
-        } else if (n === 1) {
+        } else if (n === 2) {
           objects_.prePage = prePage_;
         }
-        if (n == pageNumber_ - 2) {
+        if (n == pageNumber_ - 1) {
           objects_.nextPage = nextPage_;
-        } else if (n == pageNumber_ - 1) {
+        } else if (n == pageNumber_) {
           objects_.nextPage = null;
         }
-        objects_.page = pagePic_[m];
+        objects_.page = pageObjects_[m];
       }
 
       /**
       * @initialize
       */
-      for (var i = 0; i < pageNumber_; i++) {
-        pagePic_[i] = Option({
-            pos: pageOption_.pos, 
-            src: 'images/page' + i + '.png', 
-            width: pageOption_.width, 
-            height: pageOption_.height
-        });
+      for (var i = 1; i <= pageNumber_; i++) {
+        pageObjects_[i] = Option(srcpos['helpPage' + i], {x: 310, y: 235});
       }
       objects_.prePage = null;
-      objects_.page = pagePic_[0];
+      objects_.page = pageObjects_[1];
 
 
       function draw_() {
@@ -252,7 +242,6 @@ myth.menu.pageclasses = (function() {
     function Pause() {
       var o = null,
       objects_ = {
-        background: backgroundObject,
         shade: Option(srcpos.pauseShade, {x: 200, y:190}),
         backGame: Option(srcpos.backGame, {x: 380, y: 220}),
         retry: Option(srcpos.retry, {x: 380, y: 290}),
@@ -295,7 +284,6 @@ myth.menu.pageclasses = (function() {
     function Gameover(score) {
       var o = null,
       objects_ = {
-        background: backgroundObject,
         sound: soundsButton.option(),
         shade: Option(srcpos.overShade, {x: 210, y: 170}),
         again: Option(srcpos.again, {x: 380, y: 290}),
@@ -304,6 +292,7 @@ myth.menu.pageclasses = (function() {
 
       function draw_() {
         c.save();
+        c.clearRect(objects_.home.dpos.x(), objects_.home.dpos.y(), objects_.home.width(), objects_.home.height());
         for (o in objects_) {
           c.drawImage(objects_[o].image,
             objects_[o].spos.x(), objects_[o].spos.y(), objects_[o].width(), objects_[o].height(),
@@ -340,14 +329,12 @@ myth.menu.pageclasses = (function() {
     function GameBackground() {
       var o = null,
       objects_ = {
-        background: backgroundObject,
         pause: Option(srcpos.pause, {x: 790, y: 580}),
         sound: soundsButton.option()
       };
 
       function draw_() {
         c.save();
-        c.clearRect(0, 0, screenWidth, screenHeight);
         for (o in objects_) {
           c.drawImage(objects_[o].image,
             objects_[o].spos.x(), objects_[o].spos.y(), objects_[o].width(), objects_[o].height(),

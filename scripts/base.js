@@ -4,8 +4,10 @@ myth.base = {};
 myth.init = function() {
   myth.base.vars.canvas().width = myth.base.vars.width();
   myth.base.vars.canvas().height = myth.base.vars.height();
-  myth.base.vars.canvas().addEventListener('click', myth.base.event.clickEvent.handler, false);
+//  myth.base.vars.canvas().addEventListener('click', myth.base.event.clickEvent.handler, false);
   myth.base.vars.canvas().addEventListener('mousemove', myth.base.event.hoverEvent.handler, false);
+  myth.base.vars.canvas().addEventListener('touchmove', myth.base.event.hoverEvent.handler, false);
+  myth.base.vars.canvas().addEventListener('touchend', myth.base.event.clickEvent.handler, false);
   myth.base.vars.sounds.bgsound.play();
 };
 
@@ -15,7 +17,7 @@ myth.base.vars = (function() {
         interval_ = 1000 / 25,
         canvas_ = document.getElementById('main'),
         ctx_ = document.getElementById('main').getContext('2d'),
-        backgroundMusic_ = new Audio('./sounds/bgsound.wav'),
+        backgroundMusic_ = new Audio('./sounds/bgsound.mp3'),
         hitsound_ = new Audio('./sounds/hit.wav'),
         src_ = 'images/pic.png';
     var srcPos_ = {
@@ -40,16 +42,22 @@ myth.base.vars = (function() {
       pause: {x: 1920, y: 120, width: 45, height: 47},
       on: {x: 1920, y: 180, width: 61, height: 51},
       off: {x: 1920, y: 240, width: 61, height: 51},
-      water: {x: 0, y: 400, width: 385, height: 93},
-      fire: {x: 420, y: 400, width: 389, height: 94},
-      earth: {x: 840, y: 400, width:383, height: 93},
-      wind: {x: 1260, y: 400, width: 382, height: 93},
+      water: {x: 0, y: 400, width: 307, height: 80},
+      fire: {x: 420, y: 400, width: 314, height: 81},
+      earth: {x: 840, y: 400, width:313, height: 80},
+      wind: {x: 1260, y: 400, width: 311, height: 80},
       start: {x: 1680, y: 300, width: 270, height: 81},
       help: {x: 1680, y: 400, width: 270, height: 81},
-      background: {x: 0, y: 800, width: 960, height: 640},
-      helpbg: {x: 980, y: 800, width: 779, height: 447},
+      helpBackground: {x: 980, y: 800, width: 779, height: 447},
       pauseShade: {x: 980, y: 1260, width: 516, height: 234},
-      overShade: {x: 1540, y: 1260, width: 512, height: 289}
+      overShade: {x: 1540, y: 1260, width: 512, height: 289},
+      windScore: {x: 1990, y: 120, width: 200, height:54},
+      fireScore: {x: 1990, y: 0, width: 202, height:53},
+      waterScore: {x: 1990, y: 180, width: 210, height:55},
+      earthScore: {x: 1990, y: 60, width: 205, height:56},
+      helpPage1: {x: 0, y: 800, width: 375, height: 180},
+      helpPage2: {x: 0, y: 1000, width: 375, height: 180},
+      helpPage3: {x: 0, y: 1200, width: 375, height: 180}
     };
 
     backgroundMusic_.loop = true;
@@ -390,13 +398,52 @@ myth.base.classes = (function() {
     }
 
     /**
-    * 
+    * Score class
     */
+    function Score(type) {
+      var type_ = type,
+          image_ = new Image(),
+          pos_ = new Position(15, 15),
+          o_ = variables.srcpos()[type + 'Score'];
+
+      image_.src = variables.src();
+
+      function setStyle() {
+        switch (type_) {
+         case 'fire':
+          c.fillStyle = '#f60606';
+          break;
+         case 'water':
+          c.fillStyle = '#03afce';
+          break;
+         case 'earth':
+          c.fillStyle = '#913f2a';
+          break;
+         case 'wind':
+          c.fillStyle = '#22ec01';
+          break;
+         default:
+          break;
+        }
+      }
+
+      this.draw = function(score) {
+        c.save();
+        c.drawImage(image_, o_.x, o_.y, o_.width, o_.height, pos_.x(), pos_.y(), o_.width, o_.height);
+        c.textAlign = 'center';
+        c.font = '30px Arial';
+        setStyle();
+        c.fillText(score + '', 100, 50);
+        c.restore();
+      };
+
+    }
 
     return {
       Stars: StarsGroup,
       Path: Path,
-      Position: Position
+      Position: Position,
+      Score: Score
     };
 })();
 
@@ -413,7 +460,8 @@ myth.base.event = {
       }
 
       function handler(e) {
-        option_ = pageObject_.event(new myth.base.classes.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
+        e.preventDefault();
+        option_ = pageObject_.event(new myth.base.classes.Position(e.offsetX || e.clientX, e.offsetY || e.clientY));
         if (option_) {
           if (myth.menu.pageclasses[option_]) {
             if (option_ === 'Pause') param_.stop();
@@ -441,8 +489,9 @@ myth.base.event = {
   hoverEvent: (function() {
       var fn_ = null;
       function handler(e) {
+        e.preventDefault();
         if (fn_)
-          fn_(new myth.base.classes.Position(e.offsetX || e.pageX, e.offsetY || e.pageY));
+          fn_(new myth.base.classes.Position(e.offsetX || e.clientX, e.offsetY || e.clientY));
       } 
       function changeHandler(fn) {
         fn_ = fn;

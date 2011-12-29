@@ -2,8 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <title>星宿神话</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1"> 
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; minimum-scale=1.0; user-scalable=no;" />
     <link rel="stylesheet" href="styles/jquery.mobile-1.0.min.css" type="text/css" />
     <link rel="stylesheet" href="styles/style.css" type="text/css" />
   </head>
@@ -22,12 +24,13 @@
       $(function(){
           var pic = new Image();
           pic.onload = function() {
-            $('main').html('');
-            myth.init();
-            myth.menu.main();
+          $('main').html('');
+          myth.init();
+          myth.menu.main();
           };
           pic.src = myth.base.vars.src();
-       });
-        </script>
+          window.scrollTo(0, 1); 
+          });
+</script>
       </body>
     </html>
