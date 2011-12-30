@@ -11,9 +11,7 @@ myth.init = function() {
   cvs.onmousedown = cvs.ontouchstart = function(e) {
     cvs.onmousemove = cvs.ontouchmove = evt.hoverEvent.handler;
   };
-  v.sounds.bgsound.canplaythrough = function() {
-    v.sounds.bgsound.play();
-  };
+  v.sounds.bgsound.play();
 };
 
 myth.base.vars = (function() {
@@ -24,7 +22,7 @@ myth.base.vars = (function() {
         height_ = 640,
         backgroundMusic_ = new Audio('./sounds/bgsound.mp3'),
         hitsound_ = new Audio('./sounds/hit.wav'),
-        src_ = 'images/pic.png';
+        src_ = './images/pic.png';
     var srcPos_ = {
       stars: function(i) {
         return {
