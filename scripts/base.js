@@ -2,20 +2,24 @@
 var myth = {};
 myth.base = {};
 myth.init = function() {
-  myth.base.vars.canvas().width = myth.base.vars.width();
-  myth.base.vars.canvas().height = myth.base.vars.height();
-  myth.base.vars.canvas().addEventListener('click', myth.base.event.clickEvent.handler, false);
-  myth.base.vars.canvas().addEventListener('mousemove', myth.base.event.hoverEvent.handler, false);
-  myth.base.vars.canvas().addEventListener('touchmove', myth.base.event.hoverEvent.handler, false);
-//  myth.base.vars.canvas().addEventListener('touchend', myth.base.event.clickEvent.handler, false);
-  myth.base.vars.sounds.bgsound.play();
+  var v = myth.base.vars,
+      cvs =v.canvas(),
+      evt = myth.base.event;
+  cvs.width = v.width();
+  cvs.height = v.height();
+  cvs.onclick = evt.clickEvent.handler;
+  cvs.onmousedown = cvs.ontouchstart = function(e) {
+    cvs.onmousemove = cvs.ontouchmove = evt.hoverEvent.handler;
+  };
+  v.sounds.bgsound.canplaythrough = function() {
+    v.sounds.bgsound.play();
+  };
 };
 
 myth.base.vars = (function() {
     var interval_ = 1000 / 25,
         canvas_ = document.getElementById('main'),
         ctx_ = document.getElementById('main').getContext('2d'),
-        wrap_ = document.getElementById('wrap'),
         width_ = 960,
         height_ = 640,
         backgroundMusic_ = new Audio('./sounds/bgsound.mp3'),
@@ -33,16 +37,16 @@ myth.base.vars = (function() {
       logo1: {x: 0, y: 150, width: 553, height: 186},
       logo2: {x: 560, y: 150, width: 401, height: 136},
       logo3: {x: 980, y: 150, width: 300, height: 103},
-      backGame: {x: 1400, y:150, width: 208, height: 61},
-      retry: {x: 1680, y: 150, width: 208, height: 62},
+      backGame: {x: 1400, y:140, width: 208, height: 61},
+      retry: {x: 1680, y: 140, width: 208, height: 62},
       again: {x: 1400, y: 250, width: 207, height: 61},
       prePage: {x: 1680, y: 250, width: 69, height: 23},
       nextPage: {x: 1820, y: 250, width: 70, height: 22},
       back: {x: 1920, y: 0, width: 48, height: 47},
       home: {x: 1920, y: 60, width: 47, height: 49},
       pause: {x: 1920, y: 120, width: 45, height: 47},
-      on: {x: 1920, y: 198, width: 61, height: 51},
-      off: {x: 1920, y: 250, width: 61, height: 51},
+      on: {x: 1920, y: 180, width: 61, height: 51},
+      off: {x: 1920, y: 240, width: 61, height: 51},
       water: {x: 0, y: 400, width: 304, height: 80},
       fire: {x: 420, y: 400, width: 304, height: 80},
       earth: {x: 800, y: 400, width:304, height: 80},
@@ -55,7 +59,11 @@ myth.base.vars = (function() {
       windScore: {x: 1990, y: 120, width: 200, height:54},
       fireScore: {x: 1990, y: 0, width: 202, height:53},
       waterScore: {x: 1990, y: 180, width: 210, height:55},
-      earthScore: {x: 1990, y: 60, width: 205, height:56},
+      earthScore: {x: 1990, y: 60, width: 205, height:60},
+      windOver: {x: 1120, y: 600, width: 302, height:60},
+      fireOver: {x: 420, y: 600, width: 302, height:60},
+      waterOver: {x: 0, y: 600, width: 302, height:60},
+      earthOver: {x: 800, y: 600, width: 302, height:56},
       helpPage1: {x: 0, y: 800, width: 375, height: 180},
       helpPage2: {x: 0, y: 1000, width: 375, height: 180},
       helpPage3: {x: 0, y: 1200, width: 375, height: 180}
@@ -231,15 +239,15 @@ myth.base.classes = (function() {
     * @const {Number} DEFAULT_LIFE: the default life time.(units: second)
     * @const {Number} WIDTH/HEIGHT: the origin size of the picture
     */
-    Star.prototype.DEFAULT_LIFE = 3;
+    Star.prototype.DEFAULT_LIFE = 2;
     Star.prototype.WIDTH = myth.base.vars.srcpos().stars(0).width;
     Star.prototype.HEIGHT = myth.base.vars.srcpos().stars(0).height;
 
     /**
     * @static {Number} MINZOOM/MAXZOOM: the zoom range
     */
-    Star.MINZOOM = 0.3;
-    Star.MAXZOOM = 0.5;
+    Star.MINZOOM = 0.5;
+    Star.MAXZOOM = 0.8;
 
     /** 
     * StarsGroup Class 
@@ -428,9 +436,9 @@ myth.base.classes = (function() {
         c.save();
         c.drawImage(image_, o_.x, o_.y, o_.width, o_.height, pos_.x(), pos_.y(), o_.width, o_.height);
         c.textAlign = 'center';
-        c.font = '30px Arial';
+        c.font = '35px Arial';
         setStyle();
-        c.fillText(score + '', 100, 50);
+        c.fillText(score + '', 110, 55);
         c.restore();
       };
 
@@ -458,7 +466,11 @@ myth.base.event = {
 
       function handler(e) {
         e.preventDefault();
-        option_ = pageObject_.event(new myth.base.classes.Position(e.offsetX || e.clientX, e.offsetY || e.clientY));
+        if (e.touches) {
+          option_ = pageObject_.event(new myth.base.classes.Position(e.touches[0].clientX , e.touches[0].clientY));
+        } else {
+          option_ = pageObject_.event(new myth.base.classes.Position(e.offsetX || e.clientX, e.offsetY || e.clientY));
+        }
         if (option_) {
           if (myth.menu.pageclasses[option_]) {
             if (option_ === 'Pause') param_.stop();
@@ -484,11 +496,18 @@ myth.base.event = {
   })(),
 
   hoverEvent: (function() {
-      var fn_ = null;
+      var fn_ = null,
+          pos = null;
       function handler(e) {
         e.preventDefault();
-        if (fn_)
-          fn_(new myth.base.classes.Position(e.offsetX || e.clientX, e.offsetY || e.clientY));
+        if (fn_) {
+          if (e.touches) {
+            pos = new myth.base.classes.Position(e.touches[0].clientX / 0.48, e.touches[0].clientY / 0.48);
+          } else {
+            pos = new myth.base.classes.Position(e.offsetX || e.clientX, e.offsetY || e.clientY);
+          }
+          fn_(pos);
+        }
       } 
       function changeHandler(fn) {
         fn_ = fn;

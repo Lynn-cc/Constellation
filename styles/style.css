@@ -1,7 +1,10 @@
+html, body, #wrap{
+    margin:0;
+    padding:0;
+}
+
 #wrap{
-    width:960px;
-    height:640px;
-    background:url(../images/background.jpg) center center fixed;
+    background:url(../images/background.jpg) left top no-repeat;
     -webkit-background-size: cover;
     background-size: cover;
 }
@@ -12,27 +15,27 @@
     padding-top:30%;
     font-size:60px;
     color:#021841;
+    color:#000;
     font-family:sans-serif;
     text-align:center;
     font-weight:bold;
 }
 
-@media screen and (orientation:landscape) and (min-width:480px) and (max-width:640px),(width:480px){
-    html, body, #wrap{
-        margin:0;
-        padding:0;
+@media screen and (orientation:landscape) and (min-width:481px) and (max-width:640px),(width:480px){
+html, body, #wrap{
+    overflow:hidden;
         width: 480px;
         height: 320px;
 }
 
-    #main{
-        -webkit-transform-origin:left top;
-        -webkit-transform: scale(0.48);
+#main{
+    -webkit-transform-origin:left top;
+    -webkit-transform: scale(0.48);
 }
 }
 
 @media screen and (orientation:landscape) and (min-width:960px){
-    html,#wrap{
+    html, body, #wrap{
         width: 960px;
         height: 640px;
 }

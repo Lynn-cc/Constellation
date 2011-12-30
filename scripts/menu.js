@@ -11,6 +11,15 @@ myth.menu.pageclasses = (function() {
         backObject = Option(srcpos.back, {x: 793, y: 582}),
         homeObject = Option(srcpos.home, {x: 793, y: 582});
 
+
+    function shadeDraw() {
+        c.save();
+        c.fillStyle = '#999';
+        c.globalAlpha = 0.4;
+        c.fillRect(0, 0, screenWidth, screenHeight);
+        c.restore();
+    }
+
     /**
     * @param o{object}:
     * {pos{object: {x{Number}, y{Number}}, src{String}, width{Number}, height{Number}}}
@@ -51,13 +60,13 @@ myth.menu.pageclasses = (function() {
 
       function setsounds(value) {
         for (s in soundsObjects_) {
-          soundsObjects_[s].volume = value;
+          soundsObjects_[s].muted = value;
         }
       }
 
       this.event = function() {
         current_ === onOption_ ? (current_ = offOption_) : (current_ = onOption_);
-        setsounds(current_ === onOption_ ? 1 : 0);
+        setsounds(current_ === onOption_ ? false : true);
       };
 
       this.option = function() {
@@ -73,7 +82,7 @@ myth.menu.pageclasses = (function() {
         help: Option(srcpos.help, {x: 349, y: 340}),
         sound: soundsButton.option()
       },
-      o = null; //历遍临时变量
+      o = null; 
 
 
       function draw_() {
@@ -157,7 +166,7 @@ myth.menu.pageclasses = (function() {
     }
 
     function Help() {
-      var pageNumber_ = 5, //总页数
+      var pageNumber_ = 5,
           n = 1,
           o = null,
           pageObjects_ = [],
@@ -209,7 +218,20 @@ myth.menu.pageclasses = (function() {
         c.font = '40px Arial';
         c.fillText(pageObjects_[i].headline, 495, 285, 200);
         c.font = '25px Arial';
-        c.fillText(pageObjects_[i].content, 495, 340, 200);
+        c.textAlign = 'left';
+        var j = 0,
+            rowlength = 13,
+            origin = pageObjects_[i].content,
+            row = '',
+            lineheight = 30;
+        do {
+          row = origin.substr(j * rowlength, rowlength);
+          c.fillText(row, 330, 340 + j * lineheight, 200);
+          ++j;
+        } while ((j + 1) * rowlength < origin.length);
+
+        row = origin.substr(j * rowlength);
+        c.fillText(row, 330, 340 + j * lineheight, 200);
         c.restore();
       }
 
@@ -260,14 +282,16 @@ myth.menu.pageclasses = (function() {
       var o = null,
       objects_ = {
         shade: Option(srcpos.pauseShade, {x: 236, y:200}),
-        backGame: Option(srcpos.backGame, {x: 310, y: 270}),
-        retry: Option(srcpos.retry, {x: 450, y: 270}),
+        backGame: Option(srcpos.backGame, {x: 281, y: 281}),
+        retry: Option(srcpos.retry, {x: 520, y: 281}),
         home: homeObject,
         sound: soundsButton.option()
       };
 
       function draw_() {
         c.save();
+        c.clearRect(objects_.home.dpos.x(), objects_.home.dpos.y(), objects_.home.width(), objects_.home.height());
+        shadeDraw();
         for (o in objects_) {
           c.drawImage(objects_[o].image,
             objects_[o].spos.x(), objects_[o].spos.y(), objects_[o].width(), objects_[o].height(),
@@ -298,18 +322,20 @@ myth.menu.pageclasses = (function() {
       };
     }
 
-    function Gameover(score) {
+    function Gameover(score, type) {
       var o = null,
       objects_ = {
         sound: soundsButton.option(),
         shade: Option(srcpos.overShade, {x: 236, y: 175}),
-        again: Option(srcpos.again, {x: 380, y: 290}),
+        scorebg: Option(srcpos[type + 'Over'], {x: 360, y: 236}),
+        again: Option(srcpos.again, {x: 404, y: 332}),
         home: homeObject
       };
 
       function draw_() {
         c.save();
         c.clearRect(objects_.home.dpos.x(), objects_.home.dpos.y(), objects_.home.width(), objects_.home.height());
+        shadeDraw();
         for (o in objects_) {
           c.drawImage(objects_[o].image,
             objects_[o].spos.x(), objects_[o].spos.y(), objects_[o].width(), objects_[o].height(),
@@ -319,7 +345,7 @@ myth.menu.pageclasses = (function() {
         c.font = '60px Arial';
         c.width = 60;
         c.textAlign = 'center';
-        c.fillText(score, 470, 260, 60);
+        c.fillText(score, 495, 290, 60);
         c.restore();
       }
 
@@ -394,7 +420,7 @@ myth.menu.over = function(opt_param) {
       option_ = '',
       page_ = null;
 
-  page_ = new pageclasses.Gameover(opt_param.score);
+  page_ = new pageclasses.Gameover(opt_param.score, opt_param.gametype);
   page_.show();
   myth.base.event.clickEvent.changeHandler(page_, opt_param);
 };

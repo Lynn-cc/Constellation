@@ -1,7 +1,7 @@
 //Game entry
 myth.game = function(type) {
-  var STARS_NUMBER = 20,
-      FULL_TIME = 10 * 1000;
+  var STARS_NUMBER = 10,
+      FULL_TIME = 30 * 1000;
 
   var variables = myth.base.vars,
       c = variables.ctx(),
@@ -33,7 +33,7 @@ myth.game = function(type) {
       passTime = FULL_TIME;
       isTimeout = true;
     }
-    c.fillText('时间:' + ((FULL_TIME - passTime)/1000).toString(), screenWidth -120, 30);
+    c.fillText('Time:' + Math.floor(((FULL_TIME - passTime)/1000)).toString(), screenWidth -120, 30);
     c.restore();
   }
 
@@ -96,4 +96,3 @@ myth.game = function(type) {
 
   startGame();
 };
-
