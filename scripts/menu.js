@@ -8,8 +8,8 @@ myth.menu.pageclasses = (function() {
         screenWidth = variables.width(),
         screenHeight = variables.height(),
         soundsButton = new SoundsControl(),
-        backObject = Option(srcpos.back, {x: 790, y: 580}),
-        homeObject = Option(srcpos.home, {x: 790, y: 580});
+        backObject = Option(srcpos.back, {x: 793, y: 582}),
+        homeObject = Option(srcpos.home, {x: 793, y: 582});
 
     /**
     * @param o{object}:
@@ -44,8 +44,8 @@ myth.menu.pageclasses = (function() {
     }
 
     function SoundsControl() {
-      var onOption_ = Option(srcpos.on, {x: 870, y: 580}),
-          offOption_ = Option(srcpos.off, {x: 870, y: 580}),
+      var onOption_ = Option(srcpos.on, {x: 876, y: 582}),
+          offOption_ = Option(srcpos.off, {x: 876, y: 582}),
           soundsObjects_ = variables.sounds,
           current_ = onOption_;
 
@@ -68,9 +68,9 @@ myth.menu.pageclasses = (function() {
     //Pages Classes: Home/Start/Help/Pause/Gameover
     function Home() {
       var objects_ = {
-        logo: Option(srcpos.logo1, {x: 210, y: 30}),
-        start: Option(srcpos.start, {x: 341, y: 240}),
-        help: Option(srcpos.help, {x: 341, y: 360}),
+        logo: Option(srcpos.logo1, {x: 219, y: 18}),
+        start: Option(srcpos.start, {x: 349, y: 245}),
+        help: Option(srcpos.help, {x: 349, y: 340}),
         sound: soundsButton.option()
       },
       o = null; //历遍临时变量
@@ -109,11 +109,11 @@ myth.menu.pageclasses = (function() {
 
     function Start() {
       var objects_ = {
-        logo: Option(srcpos.logo2, {x: 265, y: 35}),
-        wind: Option(srcpos.wind, {x: 300, y: 200}),
-        water: Option(srcpos.water, {x: 300, y: 300}),
-        earth: Option(srcpos.earth, {x: 300, y: 400}),
-        fire: Option(srcpos.fire, {x: 300, y: 500}),
+        logo: Option(srcpos.logo2, {x: 280, y: 35}),
+        wind: Option(srcpos.wind, {x: 323, y: 501}),
+        water: Option(srcpos.water, {x: 323, y: 210}),
+        earth: Option(srcpos.earth, {x: 323, y: 404}),
+        fire: Option(srcpos.fire, {x: 323, y: 307}),
         sound: soundsButton.option(),
         back: backObject
       },
@@ -157,17 +157,16 @@ myth.menu.pageclasses = (function() {
     }
 
     function Help() {
-      var pageNumber_ = 3, //总页数
+      var pageNumber_ = 5, //总页数
           n = 1,
           o = null,
           pageObjects_ = [],
-          nextPage_ = Option(srcpos.nextPage, {x: 675, y: 480}),
-          prePage_ = Option(srcpos.prePage, {x: 250, y: 490}),
+          nextPage_ = Option(srcpos.nextPage, {x: 678, y: 478}),
+          prePage_ = Option(srcpos.prePage, {x: 210, y: 478}),
 
       objects_ = {
-        logo:Option(srcpos.logo3, {x: 355, y: 20}),
-        helpBackground:Option(srcpos.helpBackground, {x: 110, y: 140}),
-        page: null,
+        logo:Option(srcpos.logo3, {x: 333, y: 22}),
+        helpBackground:Option(srcpos.helpBackground, {x: 121, y: 136}),
         prePage: prePage_,
         nextPage: nextPage_,
         back: backObject,
@@ -185,17 +184,34 @@ myth.menu.pageclasses = (function() {
         } else if (n == pageNumber_) {
           objects_.nextPage = null;
         }
-        objects_.page = pageObjects_[m];
       }
 
       /**
       * @initialize
       */
-      for (var i = 1; i <= pageNumber_; i++) {
-        pageObjects_[i] = Option(srcpos['helpPage' + i], {x: 310, y: 235});
-      }
       objects_.prePage = null;
-      objects_.page = pageObjects_[1];
+      for (var i = 1; i <= 5; i++) pageObjects_[i] = {};
+      pageObjects_[1].headline = '游戏玩法说明';
+      pageObjects_[1].content = '滑动手指将出现的星星连接起来得分，不同模式下有不同的玩法';
+      pageObjects_[2].headline = '水象模式';
+      pageObjects_[2].content = '以最短的时间，连接一定数量的星星，以时间排行，游戏中有水雾模糊视线';
+      pageObjects_[3].headline = '火象模式';
+      pageObjects_[3].content = '在一分钟之内，连接尽可能多的星星，以积分排行';
+      pageObjects_[4].headline = '土象模式';
+      pageObjects_[4].content = '不限时间，但别碰到障碍物，碰到三次则失败，以积分排行';
+      pageObjects_[5].headline = '风象模式';
+      pageObjects_[5].content = '不限时间，尽量连到所有星星，落掉5个星星则失败，以积分排行';
+
+      function drawPage_(i) {
+        c.save();
+        c.textAlign = 'center';
+        c.fillStyle = '#694f31';
+        c.font = '40px Arial';
+        c.fillText(pageObjects_[i].headline, 495, 285, 200);
+        c.font = '25px Arial';
+        c.fillText(pageObjects_[i].content, 495, 340, 200);
+        c.restore();
+      }
 
 
       function draw_() {
@@ -207,6 +223,7 @@ myth.menu.pageclasses = (function() {
             objects_[o].spos.x(), objects_[o].spos.y(), objects_[o].width(), objects_[o].height(),
             objects_[o].dpos.x(), objects_[o].dpos.y(), objects_[o].width(), objects_[o].height());
         }
+        drawPage_(n);
         c.restore();
       }
 
@@ -242,9 +259,9 @@ myth.menu.pageclasses = (function() {
     function Pause() {
       var o = null,
       objects_ = {
-        shade: Option(srcpos.pauseShade, {x: 200, y:190}),
-        backGame: Option(srcpos.backGame, {x: 380, y: 220}),
-        retry: Option(srcpos.retry, {x: 380, y: 290}),
+        shade: Option(srcpos.pauseShade, {x: 236, y:200}),
+        backGame: Option(srcpos.backGame, {x: 310, y: 270}),
+        retry: Option(srcpos.retry, {x: 450, y: 270}),
         home: homeObject,
         sound: soundsButton.option()
       };
@@ -285,7 +302,7 @@ myth.menu.pageclasses = (function() {
       var o = null,
       objects_ = {
         sound: soundsButton.option(),
-        shade: Option(srcpos.overShade, {x: 210, y: 170}),
+        shade: Option(srcpos.overShade, {x: 236, y: 175}),
         again: Option(srcpos.again, {x: 380, y: 290}),
         home: homeObject
       };
@@ -329,7 +346,7 @@ myth.menu.pageclasses = (function() {
     function GameBackground() {
       var o = null,
       objects_ = {
-        pause: Option(srcpos.pause, {x: 790, y: 580}),
+        pause: Option(srcpos.pause, {x: 793, y: 582}),
         sound: soundsButton.option()
       };
 

@@ -4,19 +4,20 @@ myth.base = {};
 myth.init = function() {
   myth.base.vars.canvas().width = myth.base.vars.width();
   myth.base.vars.canvas().height = myth.base.vars.height();
-//  myth.base.vars.canvas().addEventListener('click', myth.base.event.clickEvent.handler, false);
+  myth.base.vars.canvas().addEventListener('click', myth.base.event.clickEvent.handler, false);
   myth.base.vars.canvas().addEventListener('mousemove', myth.base.event.hoverEvent.handler, false);
   myth.base.vars.canvas().addEventListener('touchmove', myth.base.event.hoverEvent.handler, false);
-  myth.base.vars.canvas().addEventListener('touchend', myth.base.event.clickEvent.handler, false);
+//  myth.base.vars.canvas().addEventListener('touchend', myth.base.event.clickEvent.handler, false);
   myth.base.vars.sounds.bgsound.play();
 };
 
 myth.base.vars = (function() {
-    var width_ = null || 960,  //to do: get the screen resolution of mobile
-        height_ = null || 640,
-        interval_ = 1000 / 25,
+    var interval_ = 1000 / 25,
         canvas_ = document.getElementById('main'),
         ctx_ = document.getElementById('main').getContext('2d'),
+        wrap_ = document.getElementById('wrap'),
+        width_ = 960,
+        height_ = 640,
         backgroundMusic_ = new Audio('./sounds/bgsound.mp3'),
         hitsound_ = new Audio('./sounds/hit.wav'),
         src_ = 'images/pic.png';
@@ -40,12 +41,12 @@ myth.base.vars = (function() {
       back: {x: 1920, y: 0, width: 48, height: 47},
       home: {x: 1920, y: 60, width: 47, height: 49},
       pause: {x: 1920, y: 120, width: 45, height: 47},
-      on: {x: 1920, y: 180, width: 61, height: 51},
-      off: {x: 1920, y: 240, width: 61, height: 51},
-      water: {x: 0, y: 400, width: 307, height: 80},
-      fire: {x: 420, y: 400, width: 314, height: 81},
-      earth: {x: 840, y: 400, width:313, height: 80},
-      wind: {x: 1260, y: 400, width: 311, height: 80},
+      on: {x: 1920, y: 198, width: 61, height: 51},
+      off: {x: 1920, y: 250, width: 61, height: 51},
+      water: {x: 0, y: 400, width: 304, height: 80},
+      fire: {x: 420, y: 400, width: 304, height: 80},
+      earth: {x: 800, y: 400, width:304, height: 80},
+      wind: {x: 1120, y: 400, width: 304, height: 80},
       start: {x: 1680, y: 300, width: 270, height: 81},
       help: {x: 1680, y: 400, width: 270, height: 81},
       helpBackground: {x: 980, y: 800, width: 779, height: 447},
@@ -367,7 +368,6 @@ myth.base.classes = (function() {
           c.shadowColor = style_.color;
           break;
         }
-
       }
 
 
@@ -389,9 +389,6 @@ myth.base.classes = (function() {
             c.lineTo(points_[i].x(), points_[i].y());
             c.stroke();
           }
-          //        暂时去掉最后跟踪鼠标的连线
-          //        c.lineTo(last_.x(), last_.y());
-          //        c.stroke();
           c.restore();
         }
       };
@@ -503,5 +500,3 @@ myth.base.event = {
       };
   })()
 };
-
-
