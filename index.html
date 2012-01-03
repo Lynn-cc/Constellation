@@ -1,20 +1,19 @@
 <!DOCTYPE HTML>
-<html lang="en">
+<html  manifest="myth.manifest" lang="en">
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <title>星宿神话</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1"> 
-    <link rel="stylesheet" href="styles/jquery.mobile-1.0.min.css" type="text/css" />
     <link rel="stylesheet" href="styles/style.css" type="text/css" />
   </head>
   <body>
-
-    <div class="wrap">
-      <canvas id='main' width="960px" height="640px"></canvas>
+    <div id="wrap">
+      <div id="loading">loading...</div>
+      <canvas id='main'></canvas>
     </div>
 
     <script src="scripts/jquery-1.6.4.min.js" type="text/javascript"></script>
-    <!--<script src="scripts/jquery.mobile-1.0.min.js" type="text/javascript"></script>-->
     <script src="scripts/base.js" type="text/javascript"></script>
     <script src="scripts/menu.js" type="text/javascript"></script>
     <!--<script src="scripts/animate.js" type="text/javascript"></script>-->
@@ -22,9 +21,15 @@
     <script src="scripts/main.js" type="text/javascript"></script>
     <script type="text/javascript">
       $(function(){
-          myth.init();
-          myth.menu.main();
-      });
-</script>
+          window.scrollTo(0, 0); 
+          var pic = new Image();
+          pic.onload = function() {
+            document.getElementById('loading').style.display = 'none';
+            myth.init();
+            myth.menu.main();
+          };
+          pic.src = myth.base.vars.src();
+        });
+    </script>
   </body>
 </html>

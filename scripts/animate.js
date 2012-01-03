@@ -1,18 +1,19 @@
 //Game entry
 myth.game = function(type) {
-  var STARS_NUMBER = 20,
-      FULL_TIME = 10;
+  var STARS_NUMBER = 10,
+      FULL_TIME = 30 * 1000;
 
   var variables = myth.base.vars,
       c = variables.ctx(),
       cvs = variables.canvas(),
       screenWidth = variables.width(),
       screenHeight = variables.height(),
-      bg = variables.background(),
       itv = variables.interval(),
       classes = myth.base.classes,
       starsObject = new classes.Stars(STARS_NUMBER),
-      pathObject = new classes.Path(),
+      pathObject = new classes.Path(type),
+      scoreObject = new classes.Score(type),
+      gameBackgroundPage = new myth.menu.pageclasses.GameBackground(),
       gameInterval = null,
       isTimeout = false,
       isPause = false,
@@ -32,88 +33,64 @@ myth.game = function(type) {
       passTime = FULL_TIME;
       isTimeout = true;
     }
-    c.fillText('时间:' + Math.ceil(FULL_TIME - passTime).toString(), screenWidth -120, 30);
-    c.restore();
-  }
-
-  /** scoreDraw */
-  function scoreDraw(){
-    c.save();
-    c.fillStyle = 'yellow';
-    c.font = '30px Arial';
-    c.fillText('积分:' + score.toString(), 10, 30); 
-    c.restore();
-  }
-
-  /** backgroundDraw */
-  function backgroundDraw() {
-    c.save();
-    c.clearRect(0, 0, screenWidth, screenHeight);
-    c.drawImage(bg, 0, 0);
+    c.fillText('Time:' + Math.floor(((FULL_TIME - passTime)/1000)).toString(), screenWidth -120, 30);
     c.restore();
   }
 
   /**
   * Handlers
   */
-  function mousemoveHandler(e){
-    var p = new classes.Position(e.offsetX || e.pageX, e.offsetY || e.pageY);
-    starsHit(p);
-  }
-
-  /** stars hit handler */
-  function starsHit(ep){
-    var o = starsObject.isHit(ep);
+  function mousemoveHandler(p) {
+    var o = starsObject.isHit(p);
     if (o) {
       pathObject.add(o.pos);
+
       //判断是不是特别的星座星星
-      if (o.type !== 0)
+      if (o.type !== 0 && pathObject)
         score += 2;
       else
         score++;
-    } 
-  }
-
-  //测试时间对象暂停功能
-  function clickHandler(e){
-    if (!isPause) {  
-      stopGame();
-      myth.menu.show('pause', {callback: startGame, gametype:type});
+      myth.base.vars.sounds.hitsound.play();
     }
   }
 
+
   /** gameControl */
-  function startGame(){
+  function startGame() {
     isPause = false;
     gameInterval = setInterval(gameloop, itv);
-    cvs.addEventListener('mousemove', mousemoveHandler, false);
-    cvs.addEventListener('click', clickHandler, false);
+    myth.base.event.hoverEvent.changeHandler(mousemoveHandler);
+    myth.base.event.clickEvent.changeHandler(gameBackgroundPage, {
+        start: startGame,
+        stop: stopGame,
+        gametype: type
+    });
   }
 
-  function stopGame(){
+  function stopGame() {
     isPause = true;
     clearInterval(gameInterval);
-    cvs.removeEventListener('mousemove', mousemoveHandler, false);
-    cvs.removeEventListener('click', clickHandler, false);
+    myth.base.event.hoverEvent.changeHandler(null);
   }
 
   /**
   * gameloop 
   */
-  function gameloop(){
-    backgroundDraw();
+  function gameloop() {
+    c.clearRect(0, 0, screenWidth, screenHeight);
+    gameBackgroundPage.show();
     pathObject.draw();
+    scoreObject.draw(score);
     starsObject.draw();
     timeDraw();
-    scoreDraw();
-    passTime += itv / 1000;
+    passTime += itv;
     if (starsObject.remainNumber() === 0) {
       starsObject = new classes.Stars(STARS_NUMBER);
-      pathObject = new classes.Path();
+      pathObject = new classes.Path(type);
     }
     if (isTimeout) {
       stopGame();
-      return myth.menu.show('gameover', {score: score, gametype: type});
+      myth.menu.over({score: score, gametype: type});
     }
   }
 
