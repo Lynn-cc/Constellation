@@ -22,42 +22,21 @@ html, body, #wrap{
 }
 
 @media screen and (orientation:landscape) and (min-width:481px) and (max-width:640px),(width:480px){
-		html, body, #wrap{
-				overflow:hidden;
-						width: 480px;
-						height: 320px;
-		}
-		
-		#main{
-				-webkit-transform-origin:left top;
-				-webkit-transform: scale(0.48);
-		}
+html, body, #wrap{
+    overflow:hidden;
+        width: 480px;
+        height: 320px;
+}
+
+#main{
+    -webkit-transform-origin:left top;
+    -webkit-transform: scale(0.48);
+}
 }
 
 @media screen and (orientation:landscape) and (min-width:960px){
     html, body, #wrap{
         width: 960px;
         height: 640px;
-		}
 }
-
-@media screen and (orientation:landscape) and (min-width:480px) and (max-width:640px){
-	#main{
-		width: 480px;
-		height: 320px;
-	}
-}
-
-@media screen and (orientation:landscape) and (min-width:640px) and (max-width:960px){
-	#main{
-		width: 640px;
-		height: 480px;
-	}
-}
-
-@media screen and (orientation:landscape) and (min-width:960px){
-	#main{
-		width: 960px;
-		height: 640px;
-	}
 }
