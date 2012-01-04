@@ -1,3 +1,7 @@
+html{
+	overflow:hidden;
+}
+
 html, body, #wrap{
 	margin:0;
 	padding:0;
@@ -21,43 +25,28 @@ html, body, #wrap{
 }
 
 @media screen and (orientation:landscape) and (max-width:480px){
-	html, body, #wrap{
-		overflow:hidden;
+	html{
 		width: 320px;
 		height: 240px;
-	}
-	#main{
-		-webkit-transform-origin:left top;
-		-webkit-transform: scale(0.34);
 	}
 }
 
 @media screen and (orientation:landscape) and (min-width:480px) and (max-width:640px),(width:480px){
-	html, body, #wrap{
-		overflow:hidden;
+	html{
 		width: 480px;
 		height: 320px;
-	}
-	#main{
-		-webkit-transform-origin:left top;
-		-webkit-transform: scale(0.5);
 	}
 }
 
 @media screen and (orientation:landscape) and (min-width:640px) and (max-width:960px),(width:640px){
-	html, body, #wrap{
-		overflow:hidden;
+	html{
 		width: 640px;
 		height: 480px;
-	}
-	#main{
-		-webkit-transform-origin:left top;
-		-webkit-transform: scale(0.67);
 	}
 }
 
 @media screen and (orientation:landscape) and (min-width:960px),(width:960px){
-  html, body, #wrap{
+  html{
     width: 960px;
     height: 640px;
 	}
