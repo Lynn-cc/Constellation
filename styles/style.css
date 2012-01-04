@@ -14,14 +14,25 @@ html, body, #wrap{
 	height:50px;
 	padding-top:30%;
 	font-size:60px;
-	color:#021841;
 	color:#000;
 	font-family:sans-serif;
 	text-align:center;
 	font-weight:bold;
 }
 
-@media screen and (orientation:landscape) and (min-width:481px) and (max-width:640px),(width:480px){
+@media screen and (orientation:landscape) and (max-width:480px){
+	html, body, #wrap{
+		overflow:hidden;
+		width: 320px;
+		height: 240px;
+	}
+	#main{
+		-webkit-transform-origin:left top;
+		-webkit-transform: scale(0.34);
+	}
+}
+
+@media screen and (orientation:landscape) and (min-width:480px) and (max-width:640px),(width:480px){
 	html, body, #wrap{
 		overflow:hidden;
 		width: 480px;
@@ -29,11 +40,23 @@ html, body, #wrap{
 	}
 	#main{
 		-webkit-transform-origin:left top;
-		-webkit-transform: scale(0.48);
+		-webkit-transform: scale(0.5);
 	}
 }
 
-@media screen and (orientation:landscape) and (min-width:960px){
+@media screen and (orientation:landscape) and (min-width:640px) and (max-width:960px),(width:640px){
+	html, body, #wrap{
+		overflow:hidden;
+		width: 640px;
+		height: 480px;
+	}
+	#main{
+		-webkit-transform-origin:left top;
+		-webkit-transform: scale(0.67);
+	}
+}
+
+@media screen and (orientation:landscape) and (min-width:960px),(width:960px){
   html, body, #wrap{
     width: 960px;
     height: 640px;
