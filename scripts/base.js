@@ -4,14 +4,18 @@ myth.base = {};
 myth.init = function() {
   var v = myth.base.vars,
       cvs =v.canvas(),
-      evt = myth.base.event;
+      evt = myth.base.event,
+      s = v.sounds.bgsound;
   cvs.width = v.width();
   cvs.height = v.height();
   cvs.onclick = evt.clickEvent.handler;
   cvs.onmousedown = cvs.ontouchstart = function(e) {
     cvs.onmousemove = cvs.ontouchmove = evt.hoverEvent.handler;
   };
-  v.sounds.bgsound.play();
+
+  s.loop = true;
+  s.preload = 'metadata';
+  s.play(); 
 };
 
 myth.base.vars = (function() {
@@ -23,6 +27,7 @@ myth.base.vars = (function() {
         backgroundMusic_ = new Audio('./sounds/bgsound.mp3'),
         hitsound_ = new Audio('./sounds/hit.wav'),
         src_ = './images/pic.png';
+
     var srcPos_ = {
       stars: function(i) {
         return {
@@ -66,9 +71,6 @@ myth.base.vars = (function() {
       helpPage2: {x: 0, y: 1000, width: 375, height: 180},
       helpPage3: {x: 0, y: 1200, width: 375, height: 180}
     };
-
-    backgroundMusic_.loop = true;
-    backgroundMusic_.preload = true;
 
     return {
       width: function() { return width_; },

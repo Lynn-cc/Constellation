@@ -45,7 +45,6 @@ myth.game = function(type) {
     if (o) {
       pathObject.add(o.pos);
 
-      //判断是不是特别的星座星星
       if (o.type !== 0 && pathObject)
         score += 2;
       else

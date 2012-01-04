@@ -7,6 +7,12 @@ NETWORK:
 /*
  
 CACHE:
-imagesa/
-scripts/
-styles/
+images/background.jpg
+images/pic.png
+scripts/animate.js
+scripts/base.js
+scripts/jquery-1.6.4.min.js
+scripts/menu.js
+styles/style.css
+sounds/bgsound.mp3
+sounds/hit.wav
