@@ -4,9 +4,9 @@ html, body, #wrap{
 }
 
 #wrap{
-    background:url(../images/background.jpg) left top no-repeat;
-    -webkit-background-size: cover;
-    background-size: cover;
+    width:960px;
+    height:640px;
+    background:url(../images/pic.png) 0 -700px no-repeat;
 }
 
 #loading{
@@ -21,20 +21,20 @@ html, body, #wrap{
 }
 
 @media screen and (orientation:landscape) and (min-width:481px) and (max-width:640px),(width:480px){
-    html, body, #wrap{
+    html{
         overflow:hidden;
         width: 480px;
         height: 320px;
 }
 
-#main{
+body{
     -webkit-transform-origin:left top;
     -webkit-transform: scale(0.48);
 }
 }
 
 @media screen and (orientation:landscape) and (min-width:960px){
-    html, body, #wrap{
+    html{
         width: 960px;
         height: 640px;
 }
