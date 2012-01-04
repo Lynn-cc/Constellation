@@ -54,17 +54,18 @@ myth.base.vars = (function() {
       helpBackground: {x: 980, y: 800, width: 779, height: 447},
       pauseShade: {x: 980, y: 1260, width: 516, height: 234},
       overShade: {x: 1540, y: 1260, width: 512, height: 289},
-      windScore: {x: 1990, y: 120, width: 200, height:54},
-      fireScore: {x: 1990, y: 0, width: 202, height:53},
+      windScore: {x: 1990, y: 120, width: 210, height:55},
+      fireScore: {x: 1990, y: 0, width: 210, height:55},
       waterScore: {x: 1990, y: 180, width: 210, height:55},
-      earthScore: {x: 1990, y: 60, width: 205, height:60},
+      earthScore: {x: 1990, y: 60, width: 210, height:55},
       windOver: {x: 1120, y: 600, width: 302, height:60},
       fireOver: {x: 420, y: 600, width: 302, height:60},
       waterOver: {x: 0, y: 600, width: 302, height:60},
       earthOver: {x: 800, y: 600, width: 302, height:56},
       helpPage1: {x: 0, y: 800, width: 375, height: 180},
       helpPage2: {x: 0, y: 1000, width: 375, height: 180},
-      helpPage3: {x: 0, y: 1200, width: 375, height: 180}
+      helpPage3: {x: 0, y: 1200, width: 375, height: 180},
+			cloud: {x: 1990, y: 240, width: 185, height: 105}
     };
 
     backgroundMusic_.loop = true;
@@ -441,12 +442,91 @@ myth.base.classes = (function() {
       };
 
     }
+		
+		/**
+    * Obstacle class
+    */
+    function Obstacle (type) {
+      var life_ = 0,
+					image_ = new Image(),
+          pos_ = new Position(random(0, 960), random(0, 640)),
+          o_ = variables.srcpos()['cloud'];
+					status_ = true;
+							
+			life_ = random(2, 6);
+      image_.src = variables.src();
+
+			this.status = function() { return status_; };
+      this.draw = function() {
+        c.save();
+				c.drawImage(image_, o_.x, o_.y, o_.width, o_.height, pos_.x(), pos_.y(), o_.width, o_.height);
+        c.restore();
+      };
+			
+			this.nextlife = function() {
+        if (life_ > 0) {
+          life_ -= variables.interval() / 1000;
+          return true;
+        } else {
+          return false;
+        }
+      };
+    }
+		
+		/**
+		* ObstacleGroup class
+		*/
+		function ObstacleGroup (n, type){
+			var array_ = [],
+				  n_ = n,
+					type_ = type;
+				
+			var ran = random(1, 10);
+			if(ran >= 1 && ran <= 4){
+				n_ = 2;	
+			}
+			else if (ran >= 5 && ran <= 7){
+				n_ = 4;
+			}
+			else if (ran >= 8 && ran <= 9){
+				n_ = 6;
+			}
+			else{
+				n_ = 8;
+			}
+			for (i = 0; i < n_; i++) {
+					array_[i] = new Obstacle(type_);
+			}
+			
+			this.drawObstacles = function() {
+        for (i = 0; i < array_.length; ++i) {
+          if (array_[i]) {
+            if (array_[i].status() && !array_[i].nextlife()) {
+              array_[i] = null;
+            } else {
+              array_[i].draw();
+            }
+          }
+        }
+      };
+			
+			this.remainNumber = function() {
+        j = 0;
+        for (i = 0; i < array_.length; ++i) {
+          if (array_[i] && array_[i].status()) {
+            ++j;
+          }
+        }
+        return j;
+      };
+		}
 
     return {
       Stars: StarsGroup,
       Path: Path,
       Position: Position,
-      Score: Score
+      Score: Score,
+			Obstacles: ObstacleGroup
     };
 })();
 
