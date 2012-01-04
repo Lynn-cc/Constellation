@@ -6,6 +6,8 @@ myth.init = function() {
       cvs =v.canvas(),
       evt = myth.base.event,
       s = v.sounds.bgsound;
+
+  document.getElementsByTagName('body')[0].style.cssText = '-webkit-transform: scale(' + v.scaleX() + ', ' + v.scaleY() + ');';
   cvs.width = v.width();
   cvs.height = v.height();
   cvs.onclick = evt.clickEvent.handler;
@@ -19,14 +21,21 @@ myth.init = function() {
 };
 
 myth.base.vars = (function() {
+        var h = document.getElementsByTagName('html')[0],
+            screenW = parseInt(getComputedStyle(h, null)['width'], 10),
+            screenH = parseInt(getComputedStyle(h, null)['height'], 10);
+        
     var interval_ = 1000 / 25,
         canvas_ = document.getElementById('main'),
         ctx_ = document.getElementById('main').getContext('2d'),
         width_ = 960,
         height_ = 640,
+        scaleX_ = screenW / width_,
+        scaleY_ = screenH / height_,
         backgroundMusic_ = new Audio('./sounds/bgsound.mp3'),
         hitsound_ = new Audio('./sounds/hit.wav'),
         src_ = './images/pic.png';
+
 
     var srcPos_ = {
       stars: function(i) {
@@ -70,12 +79,14 @@ myth.base.vars = (function() {
       helpPage1: {x: 0, y: 800, width: 375, height: 180},
       helpPage2: {x: 0, y: 1000, width: 375, height: 180},
       helpPage3: {x: 0, y: 1200, width: 375, height: 180},
-			cloud: {x: 1990, y: 240, width: 185, height: 105}
+      cloud: {x: 1990, y: 240, width: 185, height: 105}
     };
 
     return {
       width: function() { return width_; },
       height: function() { return height_; },
+      scaleX: function() { return scaleX_; },
+      scaleY: function() { return scaleY_; },
       interval: function() { return interval_; },
       canvas: function() { return canvas_; },
       ctx: function() { return ctx_; },
@@ -134,13 +145,14 @@ myth.base.event = {
         e.preventDefault();
         if (fn_) {
           if (e.touches) {
-            pos = new myth.base.classes.Position(e.touches[0].clientX / 0.48, e.touches[0].clientY / 0.48);
+            pos = new myth.base.classes.Position(e.touches[0].clientX / myth.base.vars.scaleX(), 
+              e.touches[0].clientY / myth.base.vars.scaleY());
           } else {
             pos = new myth.base.classes.Position(e.offsetX || e.clientX, e.offsetY || e.clientY);
           }
           fn_(pos);
         }
-      } 
+      }
       function changeHandler(fn) {
         fn_ = fn;
       }

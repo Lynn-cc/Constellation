@@ -3,9 +3,13 @@ html, body, #wrap{
     padding:0;
 }
 
-#wrap{
+body{
     width:960px;
     height:640px;
+    -webkit-transform-origin:left top;
+}
+
+#wrap{
     background:url(../images/pic.png) 0 -1400px no-repeat;
 }
 
@@ -25,12 +29,6 @@ html, body, #wrap{
         overflow:hidden;
         width: 480px;
         height: 320px;
-}
-
-/*这部分是要删去，然后js动态修改的，你只用把每个html的改掉就好了，模仿上面那个写法*/
-body{
-    -webkit-transform-origin:left top;
-    -webkit-transform: scale(0.48);
 }
 }
 
