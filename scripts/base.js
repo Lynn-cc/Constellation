@@ -13,7 +13,7 @@ myth.init = function() {
   cvs.onclick = evt.clickEvent.handler;
   cvs.onmousedown = cvs.ontouchstart = function(e) {
     cvs.onmousemove = cvs.ontouchmove = evt.hoverEvent.handler;
-  };
+	};
 
   s.loop = true;
   s.preload = 'metadata';
