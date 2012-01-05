@@ -13,7 +13,7 @@ myth.init = function() {
   cvs.onclick = evt.clickEvent.handler;
   cvs.onmousedown = cvs.ontouchstart = function(e) {
     cvs.onmousemove = cvs.ontouchmove = evt.hoverEvent.handler;
-	};
+  };
 
   s.loop = true;
   s.preload = 'metadata';
@@ -100,7 +100,10 @@ myth.base.event = {
   clickEvent: (function() {
       var pageObject_ = null,
           option_ = '',
-          param_ = null;
+          param_ = null,
+          pos_ = null,
+          scaleX_ = myth.base.vars.scaleX(),
+          scaleY_ = myth.base.vars.scaleY();
 
       function changeHandler(o, opt_param) {
         pageObject_ = o;
@@ -109,11 +112,13 @@ myth.base.event = {
 
       function handler(e) {
         e.preventDefault();
+        pos_ = new myth.base.classes.Position(0, 0);
         if (e.touches) {
-          option_ = pageObject_.event(new myth.base.classes.Position(e.touches[0].clientX , e.touches[0].clientY));
+          option_ = pageObject_.event(pos_.reset(e.touches[0].clientX / scaleX_ , e.touches[0].clientY / scaleY_));
         } else {
-          option_ = pageObject_.event(new myth.base.classes.Position(e.offsetX || e.clientX, e.offsetY || e.clientY));
+          option_ = pageObject_.event(pos_.reset(e.clientX / scaleX_, e.clientY / scaleY_));
         }
+//        document.getElementById('pos').innerHTML = pos_.x() + '   ' + pos_.y();
         if (option_) {
           if (myth.menu.pageclasses[option_]) {
             if (option_ === 'Pause') param_.stop();
@@ -140,17 +145,19 @@ myth.base.event = {
 
   hoverEvent: (function() {
       var fn_ = null,
-          pos = null;
+          pos_ = null,
+          scaleX_ = myth.base.vars.scaleX(),
+          scaleY_ = myth.base.vars.scaleY();
       function handler(e) {
+        pos_ = new myth.base.classes.Position(0, 0);
         e.preventDefault();
         if (fn_) {
           if (e.touches) {
-            pos = new myth.base.classes.Position(e.touches[0].clientX / myth.base.vars.scaleX(), 
-              e.touches[0].clientY / myth.base.vars.scaleY());
+            pos_.reset(e.touches[0].clientX / scaleX_, e.touches[0].clientY / scaleY_);
           } else {
-            pos = new myth.base.classes.Position(e.offsetX || e.clientX, e.offsetY || e.clientY);
+            pos_.reset(e.clientX / scaleX_, e.clientY / scaleY_);
           }
-          fn_(pos);
+          fn_(pos_);
         }
       }
       function changeHandler(fn) {
