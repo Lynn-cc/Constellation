@@ -70,7 +70,8 @@ myth.base.vars = (function() {
       helpPage1: {x: 0, y: 800, width: 375, height: 180},
       helpPage2: {x: 0, y: 1000, width: 375, height: 180},
       helpPage3: {x: 0, y: 1200, width: 375, height: 180},
-			cloud: {x: 1990, y: 240, width: 185, height: 105}
+			cloud: {x: 1990, y: 240, width: 185, height: 105},
+			cloudBlack: {x: 1990, y: 345, width: 185, height: 105}
     };
 
     return {

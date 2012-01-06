@@ -2,12 +2,7 @@ myth.base.classes = (function() {
     var variables = myth.base.vars,
         c = variables.ctx(),
         screenWidth = variables.width(),
-        screenHeight = variables.height(),
-			  STATUS = {
-					LIVE: "live",
-					CHOOSED: "choosed",
-					LOST: "lost"
-				};
+        screenHeight = variables.height();
 
     /** 
     * private random method
@@ -270,7 +265,7 @@ myth.base.classes = (function() {
 				num = 0;
 				for (i = 0; i < array_.length; ++i) {
 					if (array_[i] === null) {
-						++num;	
+						++num;
 					}
 				}
 				return num;
@@ -418,12 +413,35 @@ myth.base.classes = (function() {
       var life_ = 0,
 					image_ = new Image(),
           pos_ = new Position(random(0, 960), random(0, 640)),
-          o_ = variables.srcpos()['cloud'];
+          o_ = null;
+					width_ = 0,
+					height_ = 0,
 					status_ = true;
 							
+			switch(type){
+				case "water":
+					o_ = variables.srcpos()['cloud'];
+					width_ = o_.width;
+					height_ = o_.height;
+					break;
+				case "fire":
+					break;
+				case "earth":
+					o_ = variables.srcpos()['cloudBlack'];
+					width_ = o_.width;
+					height_ = o_.height;
+					break;
+				case "wind":
+					break;
+				default:
+					break;
+			}
 			life_ = random(2, 6);
       image_.src = variables.src();
 
+			this.pos = pos_;
+			this.width = function() { return width_; };
+			this.height = function() { return height_; };
 			this.status = function() { return status_; };
       this.draw = function() {
         c.save();
@@ -444,9 +462,9 @@ myth.base.classes = (function() {
 		/**
 		* ObstacleGroup class
 		*/
-		function ObstacleGroup (n, type){
+		function ObstacleGroup (type){
 			var array_ = [],
-				  n_ = n,
+				  n_ = 0,
 					type_ = type;
 				
 			var ran = random(1, 10);
@@ -486,6 +504,20 @@ myth.base.classes = (function() {
           }
         }
         return j;
+      };
+			
+			this.isHit = function(p) {
+        for (i = 0; i < array_.length; ++i) {
+          if (array_[i] && array_[i].status() && Position.hit(p, array_[i], false)){
+            return {
+              pos: array_[i].pos,
+              clear: function() {
+                array_[i] = null;
+              }
+            };
+          }
+        }
+        return false;
       };
 		}
 
