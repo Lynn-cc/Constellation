@@ -68,10 +68,10 @@ myth.base.vars = (function() {
       helpBackground: {x: 980, y: 800, width: 779, height: 447},
       pauseShade: {x: 980, y: 1260, width: 516, height: 234},
       overShade: {x: 1540, y: 1260, width: 512, height: 289},
-      windScore: {x: 1990, y: 120, width: 210, height:55},
-      fireScore: {x: 1990, y: 0, width: 210, height:55},
-      waterScore: {x: 1990, y: 180, width: 210, height:55},
-      earthScore: {x: 1990, y: 60, width: 210, height:55},
+      windProgress: {x: 1990, y: 120, width: 210, height:55},
+      fireProgress: {x: 1990, y: 0, width: 210, height:55},
+      waterProgress: {x: 1990, y: 180, width: 210, height:55},
+      earthProgress: {x: 1990, y: 60, width: 210, height:55},
       windOver: {x: 1120, y: 600, width: 302, height:60},
       fireOver: {x: 420, y: 600, width: 302, height:60},
       waterOver: {x: 0, y: 600, width: 302, height:60},
@@ -79,7 +79,8 @@ myth.base.vars = (function() {
       helpPage1: {x: 0, y: 800, width: 375, height: 180},
       helpPage2: {x: 0, y: 1000, width: 375, height: 180},
       helpPage3: {x: 0, y: 1200, width: 375, height: 180},
-      cloud: {x: 1990, y: 240, width: 185, height: 105}
+      cloud: {x: 1990, y: 240, width: 185, height: 105},
+      cloudBlack: {x: 1990, y: 345, width: 185, height: 105}
     };
 
     return {

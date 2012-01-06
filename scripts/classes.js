@@ -256,6 +256,20 @@ myth.base.classes = (function() {
         }
         return j;
       };
+			
+			/**
+			* count the lost stars number
+			* @return {number}
+			*/
+			this.lostNumber = function() {
+				num = 0;
+				for (i = 0; i < array_.length; ++i) {
+					if (array_[i] === null) {
+						++num;
+					}
+				}
+				return num;
+			};
     }
 
     /**
@@ -319,11 +333,12 @@ myth.base.classes = (function() {
     /**
     * Score class
     */
-    function Score(type) {
+    function ProgressBar(type) {
       var type_ = type,
           image_ = new Image(),
           pos_ = new Position(15, 15),
-          o_ = variables.srcpos()[type + 'Score'];
+          o_ = variables.srcpos()[type + 'Progress'];
+					color_ = "";
 
       image_.src = variables.src();
 
@@ -331,30 +346,63 @@ myth.base.classes = (function() {
         switch (type_) {
          case 'fire':
           c.fillStyle = '#f60606';
+					color_ = "rgba(170, 16, 24, 0.5)";
           break;
          case 'water':
           c.fillStyle = '#03afce';
+					color_ = "rgba(7, 132, 160, 0.5)";
           break;
          case 'earth':
           c.fillStyle = '#913f2a';
+					color_ = "rgba(101, 91, 82, 0.5)";
           break;
          case 'wind':
           c.fillStyle = '#22ec01';
+					color_ = "rgba(4, 134, 31, 0.5)";
           break;
          default:
           break;
         }
       }
 
-      this.draw = function(score) {
+      this.drawNumber = function(number) {
         c.save();
         c.drawImage(image_, o_.x, o_.y, o_.width, o_.height, pos_.x(), pos_.y(), o_.width, o_.height);
         c.textAlign = 'center';
         c.font = '35px Arial';
         setStyle();
-        c.fillText(score + '', 110, 55);
+        c.fillText(number + '', 110, 55);
         c.restore();
       };
+			
+			/**
+			* 绘制进度条
+			*/
+			this.drawProgressBar = function (progress){
+				var beginX = 41,
+						beginY = 20,
+						rectWidth = 126,
+						rectHeight = 44,
+						radius = rectHeight / 2,
+						leftCenter = new Position(beginX, beginY + radius),
+						rightCenter = new Position(beginX + rectWidth, beginY + radius),
+						beginProgressX = 20,
+						beginProgressY = 20,
+						progressWidth = rectWidth + 2 * radius,
+						progressHeight = rectHeight;
+						
+				c.save();
+				c.beginPath();
+				c.moveTo(beginX, beginY);
+				c.lineTo(beginX + rectWidth, beginY);
+				c.arc(rightCenter.x(), rightCenter.y(), radius, Math.PI * 3 / 2, Math.PI / 2, false);
+				c.lineTo(beginX, beginY + rectHeight);
+				c.arc(leftCenter.x(), leftCenter.y(), radius, Math.PI / 2, Math.PI * 3 / 2, false);
+				c.clip();
+				c.fillStyle = color_;
+				c.fillRect(beginProgressX, beginProgressY, progressWidth * progress, progressHeight);
+				c.restore();
+			}
 
     }
 		
@@ -365,12 +413,35 @@ myth.base.classes = (function() {
       var life_ = 0,
 					image_ = new Image(),
           pos_ = new Position(random(0, 960), random(0, 640)),
-          o_ = variables.srcpos()['cloud'];
+          o_ = null;
+					width_ = 0,
+					height_ = 0,
 					status_ = true;
 							
+			switch(type){
+				case "water":
+					o_ = variables.srcpos()['cloud'];
+					width_ = o_.width;
+					height_ = o_.height;
+					break;
+				case "fire":
+					break;
+				case "earth":
+					o_ = variables.srcpos()['cloudBlack'];
+					width_ = o_.width;
+					height_ = o_.height;
+					break;
+				case "wind":
+					break;
+				default:
+					break;
+			}
 			life_ = random(2, 6);
       image_.src = variables.src();
 
+			this.pos = pos_;
+			this.width = function() { return width_; };
+			this.height = function() { return height_; };
 			this.status = function() { return status_; };
       this.draw = function() {
         c.save();
@@ -391,9 +462,9 @@ myth.base.classes = (function() {
 		/**
 		* ObstacleGroup class
 		*/
-		function ObstacleGroup (n, type){
+		function ObstacleGroup (type){
 			var array_ = [],
-				  n_ = n,
+				  n_ = 0,
 					type_ = type;
 				
 			var ran = random(1, 10);
@@ -434,13 +505,27 @@ myth.base.classes = (function() {
         }
         return j;
       };
+			
+			this.isHit = function(p) {
+        for (i = 0; i < array_.length; ++i) {
+          if (array_[i] && array_[i].status() && Position.hit(p, array_[i], false)){
+            return {
+              pos: array_[i].pos,
+              clear: function() {
+                array_[i] = null;
+              }
+            };
+          }
+        }
+        return false;
+      };
 		}
 
     return {
       Stars: StarsGroup,
       Path: Path,
       Position: Position,
-      Score: Score,
+      ProgressBar: ProgressBar,
 			Obstacles: ObstacleGroup
     };
 })();
