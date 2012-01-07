@@ -15,8 +15,6 @@ myth.init = function() {
     cvs.onmousemove = cvs.ontouchmove = evt.hoverEvent.handler;
   };
 
-  s.loop = true;
-  s.preload = 'metadata';
   s.play(); 
 };
 
@@ -36,6 +34,8 @@ myth.base.vars = (function() {
         hitsound_ = new Audio('./sounds/hit.wav'),
         src_ = './images/pic.png';
 
+  backgroundMusic_.loop = true;
+  backgroundMusic_.preload = 'metadata';
 
     var srcPos_ = {
       stars: function(i) {
