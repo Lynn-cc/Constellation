@@ -91,7 +91,7 @@ myth.game = function(type) {
         pathObject = new classes.Path(type);
       }
       if (obstaclesObject.remainNumber() === 0) {
-        obstaclesObject = new classes.Obstacles(0, type);
+        obstaclesObject = new classes.Obstacles(type);
       }
       if (isScoreEnough) {
         stopGame();
@@ -172,6 +172,8 @@ myth.game = function(type) {
   * 运行土象模式
   */
   function startEarthMode(){
+		var flag = true;
+		
     /**
     * Handlers
     */
@@ -191,12 +193,18 @@ myth.game = function(type) {
       }
       
       if (oo) {
-        hitNumber++;
+				if (flag){
+					hitNumber++;
+				}
+				flag = false;
         if (hitNumber >= FULL_HITNUMBER) {
           hitNumber = FULL_HITNUMBER;
           isHitEnough = true; 
         } 
       }
+			else{
+				flag = true;	
+			}
     }
   
   
