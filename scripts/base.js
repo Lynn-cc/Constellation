@@ -1,13 +1,17 @@
 //myth namespace
 var myth = {};
+
 myth.base = {};
+
 myth.init = function() {
+
   var v = myth.base.vars,
       cvs =v.canvas(),
       evt = myth.base.event,
       s = v.sounds.bgsound;
 
-  document.getElementsByTagName('body')[0].style.cssText = '-webkit-transform: scale(' + v.scaleX() + ', ' + v.scaleY() + ');';
+  document.getElementsByTagName('body')[0].style.cssText = '-webkit-transform: scale(' +
+                                                  v.scaleX() + ', ' + v.scaleY() + ');';
   cvs.width = v.width();
   cvs.height = v.height();
   cvs.onclick = evt.clickEvent.handler;
@@ -16,14 +20,14 @@ myth.init = function() {
   };
 
   s.play(); 
+
 };
 
 myth.base.vars = (function() {
-        var h = document.getElementsByTagName('html')[0],
-            screenW = parseInt(getComputedStyle(h, null)['width'], 10),
-            screenH = parseInt(getComputedStyle(h, null)['height'], 10);
-        
-    var interval_ = 1000 / 25,
+    var h = document.getElementsByTagName('html')[0],
+        screenW = parseInt(getComputedStyle(h, null)['width'], 10),
+        screenH = parseInt(getComputedStyle(h, null)['height'], 10), 
+        interval_ = 1000 / 15,
         canvas_ = document.getElementById('main'),
         ctx_ = document.getElementById('main').getContext('2d'),
         width_ = 960,
@@ -34,8 +38,8 @@ myth.base.vars = (function() {
         hitsound_ = new Audio('./sounds/hit.wav'),
         src_ = './images/pic.png';
 
-  backgroundMusic_.loop = true;
-  backgroundMusic_.preload = 'metadata';
+    backgroundMusic_.preload = 'metadata';
+    backgroundMusic_.loop = true;
 
     var srcPos_ = {
       stars: function(i) {
@@ -98,6 +102,7 @@ myth.base.vars = (function() {
 })();
 
 myth.base.event = {
+
   clickEvent: (function() {
       var pageObject_ = null,
           option_ = '',
@@ -119,7 +124,7 @@ myth.base.event = {
         } else {
           option_ = pageObject_.event(pos_.reset(e.clientX / scaleX_, e.clientY / scaleY_));
         }
-//        document.getElementById('pos').innerHTML = pos_.x() + '   ' + pos_.y();
+        //        document.getElementById('pos').innerHTML = pos_.x() + '   ' + pos_.y();
         if (option_) {
           if (myth.menu.pageclasses[option_]) {
             if (option_ === 'Pause') param_.stop();
@@ -144,11 +149,13 @@ myth.base.event = {
       };
   })(),
 
+
   hoverEvent: (function() {
       var fn_ = null,
           pos_ = null,
           scaleX_ = myth.base.vars.scaleX(),
           scaleY_ = myth.base.vars.scaleY();
+
       function handler(e) {
         pos_ = new myth.base.classes.Position(0, 0);
         e.preventDefault();
@@ -161,6 +168,7 @@ myth.base.event = {
           fn_(pos_);
         }
       }
+
       function changeHandler(fn) {
         fn_ = fn;
       }
