@@ -91,6 +91,8 @@ myth.base.classes = (function() {
       var zoom_ = zoom || this.MINZOOM,
           life_ = life || this.DEFAULT_LIFE,
           angle_ = angle || 0,
+					rteAngle_ = 0,
+					displayFlag = true,
           status_ = true, 
           width_ = this.WIDTH * zoom_,
           height_ = this.HEIGHT * zoom_,
@@ -99,6 +101,8 @@ myth.base.classes = (function() {
           image_ = new Image(),
           srcx_ = 0,
           srcy_ = 0;
+					
+			var FULL_LIFE = life;
 
       /**
       * @initilize
@@ -117,6 +121,8 @@ myth.base.classes = (function() {
       this.width = function() { return width_; };
       this.height = function() { return height_; };
       this.pos = pos_;
+			this.life = life_;
+			this.fullLife = FULL_LIFE;
 
       /** draw the star */
       this.draw = function() {
@@ -126,6 +132,31 @@ myth.base.classes = (function() {
         c.drawImage(image_, srcx_, srcy_, this.WIDTH, this.HEIGHT, -width_ / 2, -height_ / 2, width_, height_);
         c.restore();
       };
+			
+			/** draw the star when it is creating*/
+			this.drawBegin = function() {
+				c.save();
+				c.translate(pos_.x(), pos_.y());
+				c.rotate(angle + rteAngle_);
+				c.drawImage(image_, srcx_, srcy_, this.WIDTH, this.HEIGHT, -width_ / 2, -height_ / 2, width_, height_);
+				c.restore();
+				rteAngle_ += Math.PI/10;
+			}
+			
+			/** draw the star when it is killing*/
+			this.drawEnd = function() {
+				c.save();
+				c.translate(pos_.x(), pos_.y());
+				c.rotate(angle);
+				if (displayFlag) {
+					c.drawImage(image_, srcx_, srcy_, this.WIDTH, this.HEIGHT, -width_ / 2, -height_ / 2, width_, height_);
+					displayFlag = false;
+				}
+				else {
+					displayFlag = true;
+				}
+				c.restore();
+			}
 
       /** 
       * star's life decrease when it can do
@@ -168,7 +199,7 @@ myth.base.classes = (function() {
     * @param {number} n: the number of the stars to be initilized
     */
     function StarsGroup(n, type) {
-      var lifeTime_ = 3, 
+      var lifeTime_ = 4, 
           array_ = [], 
           i = 0, 
           j = 0,
@@ -193,7 +224,7 @@ myth.base.classes = (function() {
 
         create = new Star(
           random(Star.MINZOOM, Star.MAXZOOM, 2),
-          random(1, lifeTime_, 2),
+          random(2, lifeTime_, 2),
           random(0, Math.PI * 2, 2),
           constellationStar);
         create.pos.reset(random(create.width(), screenWidth - create.width()),
@@ -214,7 +245,15 @@ myth.base.classes = (function() {
             if (array_[i].status() && !array_[i].nextlife()) {
               array_[i] = null;
             } else {
-              array_[i].draw();
+							if (array_[i].life > array_[i].fullLife - 1) {
+								array_[i].drawBegin();
+							}
+							else if (array_[i].life < 1) {
+								array_[i].drawEnd();	
+							}
+              else {
+								array_[i].draw();	
+							}
             }
           }
         }
@@ -412,8 +451,8 @@ myth.base.classes = (function() {
     function Obstacle (type) {
       var life_ = 0,
 					image_ = new Image(),
-          pos_ = new Position(random(0, 960), random(0, 640)),
-          o_ = variables.srcpos()['cloud'];
+          pos_ = null,
+          o_ = null,
 					width_ = 0,
 					height_ = 0,
 					status_ = true;
@@ -421,21 +460,22 @@ myth.base.classes = (function() {
 			switch(type){
 				case "water":
 					o_ = variables.srcpos()['cloud'];
-					width_ = o_.width;
-					height_ = o_.height;
 					break;
 				case "fire":
+					o_ = variables.srcpos()['cloud'];//暂时用云作为障碍物
 					break;
 				case "earth":
 					o_ = variables.srcpos()['cloudBlack'];
-					width_ = o_.width;
-					height_ = o_.height;
 					break;
 				case "wind":
+					o_ = variables.srcpos()['cloud'];//暂时用云作为障碍物
 					break;
 				default:
 					break;
 			}
+			width_ = o_.width;
+			height_ = o_.height;
+			pos_ = new Position(random(0, screenWidth), random(0, screenHeight)),
 			life_ = random(2, 6);
       image_.src = variables.src();
 
@@ -443,11 +483,12 @@ myth.base.classes = (function() {
 			this.width = function() { return width_; };
 			this.height = function() { return height_; };
 			this.status = function() { return status_; };
-      this.draw = function() {
-        c.save();
-				c.drawImage(image_, o_.x, o_.y, o_.width, o_.height, pos_.x(), pos_.y(), o_.width, o_.height);
+			this.draw = function() {
+				c.save();
+        c.translate(pos_.x(), pos_.y());
+        c.drawImage(image_, o_.x, o_.y, width_, height_, -width_ / 2, -height_ / 2, width_, height_);
         c.restore();
-      };
+			}
 			
 			this.nextlife = function() {
         if (life_ > 0) {
@@ -469,16 +510,16 @@ myth.base.classes = (function() {
 				
 			var ran = random(1, 10);
 			if(ran >= 1 && ran <= 4){
-				n_ = 2;	
+				n_ = 3;	
 			}
 			else if (ran >= 5 && ran <= 7){
-				n_ = 4;
+				n_ = 5;
 			}
 			else if (ran >= 8 && ran <= 9){
-				n_ = 6;
+				n_ = 7;
 			}
 			else{
-				n_ = 8;
+				n_ = 9;
 			}
 			for (i = 0; i < n_; i++) {
 					array_[i] = new Obstacle(type_);
