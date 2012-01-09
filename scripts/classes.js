@@ -179,7 +179,7 @@ myth.base.classes = new function() {
 				c.rotate(this.angle() + this.rteAngle());
 				c.drawImage(this.image, this.srcx(), this.srcy(), this.WIDTH, this.HEIGHT,
 					-this.width() / 2, -this.height() / 2, this.width(), this.height());
-				this.rteAngle(this.rteAngle() + Math.PI / 10);
+				this.rteAngle(this.rteAngle() + Math.PI / 5);
 			}
 			else if (this.life() < 1) {
 				c.rotate(this.angle());
@@ -233,6 +233,7 @@ myth.base.classes = new function() {
         array_ = [], 
         i = 0, 
         j = 0,
+				num = 0,
         swap = [],
         type_ = type;
 
@@ -297,7 +298,7 @@ myth.base.classes = new function() {
     * @return {number}
     */
     this.lostNumber = function() {
-      var num = 0;
+      num = 0;
       for (i = 0; i < array_.length; ++i) {
         if (array_[i] === null) {
           ++num;
@@ -512,7 +513,9 @@ myth.base.classes = new function() {
   self.Obstacles = function ObstacleGroup(type) {
     var array_ = [],
         n_ = 0,
-        type_ = type;
+        type_ = type,
+				i = 0,
+				j = 0;
 
     var ran = random(1, 10);
     if (ran < 4 ) {

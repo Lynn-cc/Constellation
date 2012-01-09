@@ -1,10 +1,10 @@
 //Game entry
 myth.game = function(type) {
   var STARS_NUMBER = 10,
-      FULL_SCORE = 50,
-      FULL_TIME = 10 * 1000,
-      FULL_HITNUMBER = 5,
-      FULL_STARLOST = 20;
+      FULL_SCORE = 200,
+      FULL_TIME = 60 * 1000,
+      FULL_HITNUMBER = 10,
+      FULL_STARLOST = 40;
 
   var variables = myth.base.vars,
       c = variables.ctx(),
