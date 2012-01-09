@@ -81,9 +81,8 @@ myth.game = function(type) {
       c.clearRect(0, 0, screenWidth, screenHeight);
       pathObject.draw();
       starsObject.draw();
-      obstaclesObject.drawObstacles();
-      progressObject.drawNumber(passTime/1000);
-      progressObject.drawProgressBar(score/FULL_SCORE);
+      obstaclesObject.draw();
+			progressObject.draw(Math.floor(passTime/1000), score/FULL_SCORE);
       gameBackgroundPage.show();
       passTime += itv;
       if (starsObject.remainNumber() === 0) {
@@ -95,7 +94,7 @@ myth.game = function(type) {
       }
       if (isScoreEnough) {
         stopGame();
-        myth.menu.over({score: passTime/1000, gametype: type});
+        myth.menu.over({score: Math.floor(passTime/1000), gametype: type});
       }
     }
     startGame();
@@ -149,8 +148,7 @@ myth.game = function(type) {
       gameBackgroundPage.show();
       pathObject.draw();
       starsObject.draw();
-      progressObject.drawNumber(score);
-      progressObject.drawProgressBar(passTime/FULL_TIME);
+			progressObject.draw(score, passTime/FULL_TIME);
       passTime += itv;
       if (starsObject.remainNumber() === 0) {
         starsObject = new classes.Stars(STARS_NUMBER);
@@ -233,9 +231,8 @@ myth.game = function(type) {
       c.clearRect(0, 0, screenWidth, screenHeight);
       pathObject.draw();
       starsObject.draw();
-      obstaclesObject.drawObstacles();
-      progressObject.drawNumber(score);
-      progressObject.drawProgressBar(hitNumber/FULL_HITNUMBER);
+      obstaclesObject.draw();
+			progressObject.draw(score, hitNumber/FULL_HITNUMBER);
       gameBackgroundPage.show();
       if (starsObject.remainNumber() === 0) {
         starsObject = new classes.Stars(STARS_NUMBER);
@@ -300,8 +297,7 @@ myth.game = function(type) {
       gameBackgroundPage.show();
       pathObject.draw();
       starsObject.draw();
-      progressObject.drawNumber(score);
-      progressObject.drawProgressBar(lostStarNum/FULL_STARLOST);
+			progressObject.draw(score, lostStarNum/FULL_STARLOST);
       passTime += itv;
       if (starsObject.remainNumber() === 0) {
         lostStarNum += starsObject.lostNumber();

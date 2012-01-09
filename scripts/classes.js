@@ -93,8 +93,7 @@ myth.base.classes = new function() {
   * @param {String} the game type
   */
   function Star(maxlife, type) {
-    //问题：私有变量后缀掉了吧。。
-    var displayFlag = true,
+    var displayFlag_ = true,
         rteAngle_ = 0,
         status_ = true, 
         type_ = 0,
@@ -102,18 +101,12 @@ myth.base.classes = new function() {
         srcy_ = 0,
         zoom_ = random(this.MINZOOM, this.MAXZOOM, 2),
         life_ = random(2, maxlife, 2),
+				fullLife_ = life_,
         angle_ = random(0, Math.PI * 2, 2),
         width_ = this.WIDTH * zoom_,
         height_ = this.HEIGHT * zoom_,
     pos_ = new Position(random(width_, screenWidth - width_),
       random(height_, screenHeight - height_));
-
-
-    //问题：
-    //大写的是const变量的哇，这个为什么被life这个参数赋值，这是不对的吧。
-    //你可以在外面用Star.prototype.FULL_LIFE = 固定值。。。
-    //否则，你就用上面私有变量的方法赋值
-    var FULL_LIFE = life_;
 
     /**
     * @initilize
@@ -142,48 +135,29 @@ myth.base.classes = new function() {
     this.srcx = function() { return srcx_; };
     this.srcy = function() { return srcy_; };
     this.pos = pos_;
-    //问题：
-    //值类型用function来返回，例如上面的type，status之类的
-    //引用类型才直接返回，例如上面的pos\
-    //life已经帮你改了，你自己改你的fulllife
     this.life = function(l) {
       if (l != undefined)
         life_ = l;
       return life_;
     };
-    this.fullLife = FULL_LIFE;
-
-
-    //问题：
-    //这两个方法表示没看懂，3个draw了，有那么大区别？你还在改的吧？
-    //貌似你的angle，用的是参数，私有变量是angle_，是不是写错了..帮你改了
-    //你再按照prototype.draw函数的方式，把全部改一下，然后移到外面去。
-    /** draw the star when it is creating*/
-    this.drawBegin = function() {
-      c.save();
-      c.translate(this.pos.x(), this.pos.y());
-      c.rotate(angle_ + rteAngle_);
-      c.drawImage(this.image, this.srcx(), this.srcy(), this.WIDTH, this.HEIGHT,
-        -this.width() / 2, -this.height() / 2, this.width(), this.height());
-      c.restore();
-      rteAngle_ += Math.PI / 10;
-    };
-
-    /** draw the star when it is killing*/
-    this.drawEnd = function() {
-      c.save();
-      c.translate(this.pos.x(), this.pos.y());
-      c.rotate(angle_);
-      if (displayFlag) {
-        c.drawImage(this.image, this.srcx(), this.srcy(), this.WIDTH, this.HEIGHT,
-          -this.width() / 2, -this.height() / 2, this.width(), this.height());
-        displayFlag = false;
-      }
-      else {
-        displayFlag = true;
-      }
-      c.restore();
-    };
+    this.fullLife = function(fl) {
+			if (fl != undefined) {
+				fullLife_ = fl;	
+			}
+			return fullLife_;	
+		}
+		this.rteAngle = function(ra) {
+			if (ra != undefined) {
+				rteAngle_ = ra;	
+			}
+			return rteAngle_;
+		}
+		this.displayFlag = function(df) {
+			if (df != undefined) {
+				displayFlag_ = df;
+			}	
+			return displayFlag_;
+		}
   }
   /**
   * Star Class's const variables / prototype variables and methods
@@ -199,12 +173,31 @@ myth.base.classes = new function() {
     MAXZOOM : 0.8,
     image: new Image(),
     draw: function() {
-      c.save();
-      c.translate(this.pos.x(), this.pos.y());
-      c.rotate(this.angle());
-      c.drawImage(this.image, this.srcx(), this.srcy(), this.WIDTH, this.HEIGHT,
-        -this.width() / 2, -this.height() / 2, this.width(), this.height());
-      c.restore();
+			c.save();
+			c.translate(this.pos.x(), this.pos.y());
+			if (this.life() > this.fullLife() - 1) {
+				c.rotate(this.angle() + this.rteAngle());
+				c.drawImage(this.image, this.srcx(), this.srcy(), this.WIDTH, this.HEIGHT,
+					-this.width() / 2, -this.height() / 2, this.width(), this.height());
+				this.rteAngle(this.rteAngle() + Math.PI / 10);
+			}
+			else if (this.life() < 1) {
+				c.rotate(this.angle());
+				if (this.displayFlag()) {
+					c.drawImage(this.image, this.srcx(), this.srcy(), this.WIDTH, this.HEIGHT,
+						-this.width() / 2, -this.height() / 2, this.width(), this.height());
+					this.displayFlag(false);
+				}
+				else {
+					this.displayFlag(true);
+				}
+			}
+			else {
+				c.rotate(this.angle());
+				c.drawImage(this.image, this.srcx(), this.srcy(), this.WIDTH, this.HEIGHT,
+					-this.width() / 2, -this.height() / 2, this.width(), this.height());
+			}
+			c.restore();
     },
     /** 
     * star's life decrease when it can do
@@ -236,9 +229,6 @@ myth.base.classes = new function() {
   * @param {String} type: the game type
   */
   self.Stars = function StarsGroup(n, type) {
-    //问题：这是我的问题，名字没取好，换过来了，lifeTime 换成 maxlife
-    //另外这个type是游戏类型，要在每个游戏类型里面产生相应星象的星座星星。
-    //现在暂时还没用这个参数的，要用在star类里面用
     var maxlife_ = 4, 
         array_ = [], 
         i = 0, 
@@ -259,23 +249,7 @@ myth.base.classes = new function() {
           if (array_[i].status() && !array_[i].nextlife()) {
             array_[i] = null;
           } else {
-            //问题：
-            //这里的三种画法，其实都只在调用star类的方法
-            //无关starsGroup的东西，甚至还更改star的私有变量值
-            //所以其实你可以直接在star的draw里面进行这样的判断
-            //外面统一给draw方法就可以了。
-            //同理，其实我写的create方法，也可以在star自己的
-            //构造函数里面随机，而不用在starsGroup类里面随机
-            //所以我把create修改了。而这个方法你自己修改。
-            if (array_[i].life() > array_[i].fullLife - 1) {
-              array_[i].drawBegin();
-            }
-            else if (array_[i].life() < 1) {
-              array_[i].drawEnd();  
-            }
-            else {
-              array_[i].draw(); 
-            }
+            array_[i].draw();
           }
         }
       }
@@ -323,8 +297,6 @@ myth.base.classes = new function() {
     * @return {number}
     */
     this.lostNumber = function() {
-      //问题：
-      //你声明变量的时候，没有用var，已经给你添加上了，这个错误很严重！
       var num = 0;
       for (i = 0; i < array_.length; ++i) {
         if (array_[i] === null) {
@@ -430,21 +402,8 @@ myth.base.classes = new function() {
       }
     }
     
-    //问题：
-    //建议用一个统一的draw搞定，外面调用的时候
-    //直接一起画出来。参数也合并一下
-    this.drawNumber = function(number) {
-      c.save();
-      c.drawImage(image_, o_.x, o_.y, o_.width, o_.height, pos_.x(), pos_.y(), o_.width, o_.height);
-      c.textAlign = 'center';
-      c.font = '35px Arial';
-      setStyle();
-      c.fillText(number + '', 110, 55);
-      c.restore();
-    };
-
-    this.drawProgressBar = function (progress){
-      var beginX = 41,
+		this.draw = function(number, progress) {
+			var beginX = 41,
           beginY = 20,
           rectWidth = 126,
           rectHeight = 44,
@@ -455,9 +414,15 @@ myth.base.classes = new function() {
           beginProgressY = 20,
           progressWidth = rectWidth + 2 * radius,
           progressHeight = rectHeight;
-
-      c.save();
-      c.beginPath();
+			
+			c.save();
+      c.drawImage(image_, o_.x, o_.y, o_.width, o_.height, pos_.x(), pos_.y(), o_.width, o_.height);
+      c.textAlign = 'center';
+      c.font = '35px Arial';
+      setStyle();
+      c.fillText(number + '', 110, 55);
+			
+			c.beginPath();
       c.moveTo(beginX, beginY);
       c.lineTo(beginX + rectWidth, beginY);
       c.arc(rightCenter.x(), rightCenter.y(), radius, Math.PI * 3 / 2, Math.PI / 2, false);
@@ -467,7 +432,7 @@ myth.base.classes = new function() {
       c.fillStyle = color_;
       c.fillRect(beginProgressX, beginProgressY, progressWidth * progress, progressHeight);
       c.restore();
-    };
+		}
   };
 
 
@@ -483,10 +448,7 @@ myth.base.classes = new function() {
         width_ = 0,
         height_ = 0,
         status_ = true,
-        //问题：
-    //参数需要赋值给私有变量，而不是直接使用
-    //已经帮你添加上了
-    type_ = type;
+        type_ = type;
 
     switch(type_) {
      case "water":
@@ -506,9 +468,6 @@ myth.base.classes = new function() {
     }
     width_ = o_.width;
     height_ = o_.height;
-    //问题：
-    //pos这样随机出来，画的云可能大半部分漏在屏幕外面。
-    //所以你可以让屏幕长宽减去图像的本身长宽作为随机范围
     pos_ = new Position(random(0, screenWidth), random(0, screenHeight));
     life_ = random(2, 6);
 
@@ -556,33 +515,20 @@ myth.base.classes = new function() {
         type_ = type;
 
     var ran = random(1, 10);
-    //问题：
-    //else if 建议写到上一行后括号一个空格之后
-    //if\for\while这些的条件的括号前后要空格：if (condition) {}
-    //另外这个算法是可以简化的:
-    //if (ran < 4 ) n_ = 3;      //0, 1, 2, 3
-    //else if (ran < 7) n_ = 5;  //4, 5, 6
-    //else if (ran < 9) n_ = 7;  //7, 8
-    //else n_ = 9;               //9 
-    if(ran >= 1 && ran <= 4){
-      n_ = 3; 
-    }
-    else if (ran >= 5 && ran <= 7){
-      n_ = 5;
-    }
-    else if (ran >= 8 && ran <= 9){
-      n_ = 7;
-    }
-    else{
-      n_ = 9;
-    }
+    if (ran < 4 ) {
+			n_ = 3;
+		} else if (ran < 7) {
+			n_ = 5;
+		} else if (ran < 9) {
+			n_ = 7;
+		} else {
+			n_ = 9;
+		}
     for (i = 0; i < n_; i++) {
       array_[i] = new Obstacle(type_);
     }
 
-    //问题：
-    //建议统一用draw，也比较简洁
-    this.drawObstacles = function() {
+    this.draw = function() {
       for (i = 0; i < array_.length; ++i) {
         if (array_[i]) {
           if (array_[i].status() && !array_[i].nextlife()) {
