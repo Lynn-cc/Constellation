@@ -42,13 +42,20 @@ body{
 @media screen and (orientation:landscape) and (min-width:480px) and (max-width:640px),(width:480px){
     html{
         width: 480px;
-        height: 320px;
+        height: 320px; 
 }
 }
 
-@media screen and (orientation:landscape) and (min-width:640px) and (max-width:960px),(width:640px){
+@media screen and (orientation:landscape) and (min-width:640px) and (max-width:854px),(width:640px){
     html{
         width: 640px;
+        height: 480px;
+}
+}
+
+@media screen and (orientation:landscape) and (min-width:854px) and (max-width:960px),(width:854px){
+    html{
+        width: 800px;
         height: 480px;
 }
 }
