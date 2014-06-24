@@ -12,12 +12,14 @@
     <div id="wrap">
       <div id="loading">loading...</div>
       <canvas id='main'></canvas>
+      <span id="qqLoginBtn"></span>//qq登录的按钮，你找个合适的位置吧
     </div>
 
     <script src="scripts/jquery-1.6.4.min.js" type="text/javascript"></script>
     <script src="scripts/base.js" type="text/javascript"></script>
     <script src="scripts/menu.js" type="text/javascript"></script>
     <script src="scripts/animate.js" type="text/javascript"></script>
+    <script type="text/javascript" src="http://qzonestyle.gtimg.cn/qzone/openapi/qc.js"></script>
     <script type="text/javascript">
       $(function(){
           window.scrollTo(0, 0); 
@@ -29,6 +31,18 @@
           };
           pic.src = myth.base.vars.src();
         });
+//插入QQ登录按钮
+  QC.Login.insertButton
+  ({
+   btnId : 'qqLoginBtn',    //要插入QQ登录按钮的html标签，必须
+   size : 'A_S',            //按钮样式 （A/B/C代表三种样式。S/M/L/XL代表尺寸）
+  //包括：A_S，A_M，A_L，A_XL，B_S，B_M，B_L，C_S
+   clientId : '100241912',    //申请时分配的appid，必须
+   scope : 'get_user_info' ,            // 授权范围，可选
+   redirectURI : 'http://qzs.qq.com/qzone/openapi/success.html',//回调界面。重新整个好看的吧。登录成功后的界面。
+   'btnMode':'showUserAfterLogin',
+               //默认PC，支持mobile
+  });
     </script>
-  </body>
+</body>
 </html>
